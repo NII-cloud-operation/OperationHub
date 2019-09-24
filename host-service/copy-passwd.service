@@ -1,0 +1,13 @@
+[Unit]
+Description=Copy passwd for OperationHub
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStartPre=/usr/bin/mkdir -p /var/lib/jupyterhub/passwd
+ExecStart=/usr/bin/bash -c 'cp -p /etc/{passwd,group,shadow} /var/lib/jupyterhub/passwd'
+
+[Install]
+WantedBy=multi-user.target
+

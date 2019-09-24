@@ -1,0 +1,13 @@
+[Unit]
+Description=restuser
+After=network.target
+
+[Service]
+Environment=RESTUSER_SOCKET=/var/run/jupyterhub/restuser.sock
+Environment=HOME_DIR=/home/USERNAME
+ExecStartPre=/usr/bin/mkdir -p /var/run/jupyterhub
+ExecStart=/usr/bin/python3 /usr/local/bin/restuser.py --socket=${RESTUSER_SOCKET} --skeldir=/etc/skel --homedir=${HOME_DIR}
+ExecStop=/bin/kill -s INT ${MAINPID}
+Restart=always
+WorkingDirectory=/usr/local/bin
+

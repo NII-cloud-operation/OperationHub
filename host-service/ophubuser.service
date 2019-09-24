@@ -1,0 +1,13 @@
+[Unit]
+Description=ophubuser
+After=network.target
+
+[Service]
+Environment=OPHUBUSER_SOCKET=/var/run/jupyterhub/ophubuser.sock
+Environment=USERS_DIR=/home/user-notebooks
+Environment=NOTEBOOK_DIR=/home/USERNAME/notebooks
+ExecStartPre=/usr/bin/mkdir -p /home/user-notebooks /var/run/jupyterhub
+ExecStart=/usr/bin/python3 /usr/local/bin/ophubuser.py --socket=${OPHUBUSER_SOCKET} --usersdir=${USERS_DIR} --notebookdir=/home/USERNAME/notebooks
+ExecStop=/bin/kill -s INT ${MAINPID}
+Restart=always
+WorkingDirectory=/usr/local/bin

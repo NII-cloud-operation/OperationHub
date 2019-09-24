@@ -1,0 +1,61 @@
+version: '3.5'
+services:
+    proxy:
+        build:
+            context: ./images/nginx
+        ports:
+            - 443:8443
+        restart: always
+        depends_on:
+            - jupyterhub
+        environment:
+            SERVER_NAME: "${SERVER_NAME:-${HOSTNAME}}"
+        networks:
+            - backend
+        volumes:
+            - /etc/localtime:/etc/localtime:ro
+            - ./nginx/nginx.conf.template:/etc/nginx/conf.d/default.conf.template:ro
+            - ./cert/server.cer:/etc/nginx/ssl/server.cer:ro
+            - ./cert/server.key:/etc/nginx/ssl/server.key:ro
+        command: >
+          /bin/bash -c
+          "envsubst '$$SERVER_NAME'
+          < /etc/nginx/conf.d/default.conf.template
+          > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+
+    jupyterhub:
+        build:
+            context: ./images/jupyterhub
+        user: root
+        restart: always
+        environment:
+            SINGLE_USER_IMAGE: "${SINGLE_USER_IMAGE:-niicloudoperation/notebook}"
+            BACKEND_NETWORK: "jupyterhub_backend"
+            SERVER_SIGNATURE_HOST_PATH: "/var/lib/jupyterhub/data/server_signature"
+            SHARED_DIR: "${SHARED_DIR:-/var/lib/jupyterhub/share}"
+            USERS_DIR: "${USERS_DIR:-/home/user-notebooks}"
+            DEBUG: "${DEBUG:-no}"
+            CULL_SERVER: "${CULL_SERVER:-no}"
+            CULL_SERVER_IDLE_TIMEOUT: "${CULL_SERVER_IDLE_TIMEOUT:-600}"
+            CULL_SERVER_MAX_AGE: "${CULL_SERVER_MAX_AGE:-0}"
+            CULL_SERVER_EVERY: "${CULL_SERVER_EVERY:-0}"
+            LC_WRAPPER_FLUENTD_HOST: "${LC_WRAPPER_FLUENTD_HOST:-}"
+            LC_WRAPPER_FLUENTD_PORT: "${LC_WRAPPER_FLUENTD_PORT:-24224}"
+        networks:
+            - backend
+        volumes:
+            - '/etc/localtime:/etc/localtime:ro'
+            - '/var/run/docker.sock:/var/run/docker.sock'
+            - '/var/run/jupyterhub:/var/run/jupyterhub'
+            - '/var/lib/jupyterhub/data:/srv/jupyterhub/data/'
+            - '/var/lib/jupyterhub/passwd/passwd:/etc/passwd:ro'
+            - '/var/lib/jupyterhub/passwd/shadow:/etc/shadow:ro'
+            - '/var/lib/jupyterhub/passwd/group:/etc/group:ro'
+            - '${SHARED_DIR:-/var/lib/jupyterhub/share}:/var/jupyterhub/share/'
+            - './jupyterhub-logo.png:/var/jupyterhub/logo.png:ro'
+
+networks:
+    backend:
+        driver: bridge
+        name: jupyterhub_backend
+

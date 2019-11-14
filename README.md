@@ -48,7 +48,7 @@ Please install the services with `install-host-services.sh` script.
 
 This script installs python 3 environment and the following systemd units.
 
-- `resetuser.service`
+- `restuser.service`
   - RESTUser service ( https://github.com/minrk/restuser )
   - REST API server for creating users on the host system
 - `ophubuser.service`

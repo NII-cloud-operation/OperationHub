@@ -66,6 +66,14 @@ c.Spawner.environment = {
     'TZ': tz
 }
 
+scrapbox_project_id = os.environ.get('SIDESTICKIES_SCRAPBOX_PROJECT_ID')
+scrapbox_cookie_connect_sid = os.environ.get('SIDESTICKIES_SCRAPBOX_COOKIE_CONNECT_SID')
+if scrapbox_project_id and scrapbox_cookie_connect_sid:
+    c.Spawner.environment.update({
+        'SIDESTICKIES_SCRAPBOX_PROJECT_ID': scrapbox_project_id,
+        'SIDESTICKIES_SCRAPBOX_COOKIE_CONNECT_SID': scrapbox_cookie_connect_sid
+    })
+
 lc_wrapper_fluentd_host = os.environ.get('LC_WRAPPER_FLUENTD_HOST')
 if lc_wrapper_fluentd_host is not None and lc_wrapper_fluentd_host == '':
     lc_wrapper_fluentd_host = None

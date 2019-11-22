@@ -159,6 +159,13 @@ The [Jupyter-LC_wrapper](https://github.com/NII-cloud-operation/Jupyter-LC_wrapp
 cell execution results to a Fluentd forward server.
 For using this feature, set the address and port of the Fluentd forward server to `LC_WRAPPER_FLUENTD_HOST`, `LC_WRAPPER_FLUENTD_PORT`.
 
+**SIDESTICKIES_SCRAPBOX_PROJECT_ID**, **SIDESTICKIES_SCRAPBOX_COOKIE_CONNECT_SID**
+
+The [Scrapbox](https://scrapbox.io/) project name and access token for [sidestickies](https://github.com/NII-cloud-operation/sidestickies) extension.
+
+The [niicloudopration/notebook](https://hub.docker.com/r/niicloudoperation/notebook/) image includes sidestickies extension.
+You can enable sidestickies extension via the Nbextensions tab. Note: you need to enable both "Sidestickies for file tree" and "Sidestickies for notebook" nbextensions.
+
 # Collecting container logs
 
 OperationHub outputs logs such as Nginx access logs and JupyterHub logs to docker logs.

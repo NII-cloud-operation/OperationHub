@@ -29,17 +29,22 @@ class BaseHandler(web.RequestHandler):
 class MountHandler(BaseHandler):
 
 
-    def mount(self, nbdir, mountpoint):
-        cmd = ['mount', '--bind', nbdir, mountpoint]
+    def mount(self, nbdir, mountpoint, option='ro'):
+        cmd = ['mount', '--bind']
+        option = option.strip()
+        if option:
+            cmd += ['-o', option]
+        cmd += [nbdir, mountpoint]
         self.exec_cmd(cmd)
 
-    def ismount(self, mountpoint):
+    def ismount(self, mountpoint, required_options=set()):
         cmd = ['mount']
         out, err = self.exec_cmd(cmd)
         for line in out.decode('utf8', 'replace').split('\n'):
-            m = re.match(r'.+ on {} type.+'.format(re.escape(mountpoint)), line)
+            m = re.match(r'.+ on {} type [a-z]+ \((.+)\)'.format(re.escape(mountpoint)), line)
             if m:
-                return True
+                options = set([x.strip() for x in m.group(1).split(',')])
+                return len(options & required_options) == len(required_options)
         return False
 
     def get_ugid(self, name):
@@ -49,15 +54,17 @@ class MountHandler(BaseHandler):
     def post(self, name):
         nbdir = self.settings['notebookdir'].replace('USERNAME', name)
         mountpoint = os.path.join(self.settings['usersdir'], name)
+        uid, gid = self.get_ugid(name)
         if not os.path.exists(mountpoint):
             os.makedirs(mountpoint)
         if not os.path.exists(nbdir):
             os.makedirs(nbdir)
-        uid, gid = self.get_ugid(name)
         os.chown(nbdir, uid, gid)
-        os.chown(mountpoint, uid, gid)
         if not self.ismount(mountpoint):
+            os.chown(mountpoint, uid, gid)
             self.mount(nbdir, mountpoint)
+        elif self.ismount(mountpoint, {'rw'}):
+            self.mount(nbdir, mountpoint, 'ro,remount')
         d = {
             'username': name,
             'notebookdir': nbdir,

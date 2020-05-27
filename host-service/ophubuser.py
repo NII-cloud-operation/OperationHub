@@ -41,7 +41,7 @@ class MountHandler(BaseHandler):
         cmd = ['mount']
         out, err = self.exec_cmd(cmd)
         for line in out.decode('utf8', 'replace').split('\n'):
-            m = re.match(r'.+ on {} type [a-z]+ \((.+)\)'.format(re.escape(mountpoint)), line)
+            m = re.match(r'.+ on {} type [a-z0-9]+ \((.+)\)'.format(re.escape(mountpoint)), line)
             if m:
                 options = set([x.strip() for x in m.group(1).split(',')])
                 return len(options & required_options) == len(required_options)

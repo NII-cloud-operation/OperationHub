@@ -56,7 +56,10 @@ def get_uid(spawner):
     import pwd
     return str(pwd.getpwnam(spawner.user.name).pw_uid)
 
-tz = datetime.now(tzlocal()).tzname()
+dt = datetime.now(tzlocal())
+utc_offset = dt.utcoffset().seconds
+utc_offset_str = '{:+.0f}'.format(-utc_offset / 3600) if utc_offset != 0 else ''
+tz = dt.tzname() + utc_offset_str
 
 c.Spawner.environment = {
     'lc_nblineage_server_signature_path': '/var/lib/jupyter/server_signature',

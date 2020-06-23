@@ -129,6 +129,10 @@ Example:
 
     SERVER_NAME=ophub.example.com
 
+**SERVER_PORT**
+
+The web server port. The default is 443.
+
 **SINGLE_USER_IMAGE**
 
 `SINGLE_USER_IAMGE` is the name of the docker image to use for a single-user notebook server.

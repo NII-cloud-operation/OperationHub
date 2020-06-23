@@ -4,7 +4,7 @@ services:
         build:
             context: ./images/nginx
         ports:
-            - 443:8443
+            - "${SERVER_PORT:-443}:8443"
         restart: always
         depends_on:
             - jupyterhub

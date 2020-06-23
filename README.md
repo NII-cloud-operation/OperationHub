@@ -170,6 +170,16 @@ The [Scrapbox](https://scrapbox.io/) project name and access token for [sidestic
 The [niicloudopration/notebook](https://hub.docker.com/r/niicloudoperation/notebook/) image includes sidestickies extension.
 You can enable sidestickies extension via the Nbextensions tab. Note: you need to enable both "Sidestickies for file tree" and "Sidestickies for notebook" nbextensions.
 
+**NBSEARCHDB_HOSTNAME**, **NBSEARCHDB_PORT**,  
+**NBSEARCHDB_USERNAME**, **NBSEARCHDB_PASSWORD**,  
+**NBSEARCHDB_DATABASE**, **NBSEARCHDB_COLLECTION**,  
+**NBSEARCHDB_MY_SERVER_URL**,  
+**NBSEARCHDB_AUTO_UPDATE**
+
+The configurations for [NBSearch](https://github.com/NII-cloud-operation/nbsearch).
+
+See https://github.com/NII-cloud-operation/Jupyter-LC_docker#using-nbsearch about details.
+
 # Collecting container logs
 
 OperationHub outputs logs such as Nginx access logs and JupyterHub logs to docker logs.

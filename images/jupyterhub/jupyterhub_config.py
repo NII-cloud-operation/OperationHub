@@ -69,6 +69,15 @@ c.Spawner.environment = {
     'TZ': tz
 }
 
+for key in os.environ.keys():
+    if key.startswith('NBSEARCHDB_'):
+        c.Spawner.environment[key] = os.environ[key]
+
+def get_nbsearch_basedir(spawner):
+    return '/home/{username}/notebooks'.format(username=spawner.user.name)
+
+c.Spawner.environment['NBSEARCHDB_BASE_DIR'] = get_nbsearch_basedir
+
 scrapbox_project_id = os.environ.get('SIDESTICKIES_SCRAPBOX_PROJECT_ID')
 scrapbox_cookie_connect_sid = os.environ.get('SIDESTICKIES_SCRAPBOX_COOKIE_CONNECT_SID')
 if scrapbox_project_id and scrapbox_cookie_connect_sid:

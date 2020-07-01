@@ -11,3 +11,5 @@ ExecStop=/bin/kill -s INT ${MAINPID}
 Restart=always
 WorkingDirectory=/usr/local/bin
 
+[Install]
+WantedBy=multi-user.target

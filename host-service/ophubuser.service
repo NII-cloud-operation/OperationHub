@@ -11,3 +11,6 @@ ExecStart=/usr/bin/python3 /usr/local/bin/ophubuser.py --socket=${OPHUBUSER_SOCK
 ExecStop=/bin/kill -s INT ${MAINPID}
 Restart=always
 WorkingDirectory=/usr/local/bin
+
+[Install]
+WantedBy=multi-user.target

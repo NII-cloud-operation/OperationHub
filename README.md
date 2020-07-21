@@ -244,3 +244,6 @@ This directory contains data files related to JupyterHub, for example, the SQLit
 
 This directory is used to sync host and container users.
 
+## About Internals
+
+![internals](docs/internals.png)

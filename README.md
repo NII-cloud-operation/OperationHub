@@ -94,6 +94,8 @@ Start OperationHub with `docker-compose`
 Try accessing https://(your domain name)/ from your browser.
 If everything went well, you should see a JupyterHub login page.
 
+**Caution:** The default image is better to be loaded beforehand to avoid a long wait and a possible time-out. 
+
 # Create new user
 
 For creating a new user, use `useradd` command on the command line of the server.

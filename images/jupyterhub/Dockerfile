@@ -1,7 +1,7 @@
 FROM jupyterhub/jupyterhub:1.0.0
 
 # dind
-RUN apt-get update && apt-get install -y make && apt-get autoclean && apt-get clean && apt-get autoremove
+RUN apt-get update && apt-get install -y make gcc && apt-get autoclean && apt-get clean && apt-get autoremove
 RUN curl -fsSL https://get.docker.com/ | sh
 
 # acl
@@ -24,4 +24,3 @@ ADD add_user.py /usr/local/bin/add_user.py
 
 RUN mkdir /var/jupyterhub/
 ADD jupyterhub_config.py /srv/jupyterhub/
-

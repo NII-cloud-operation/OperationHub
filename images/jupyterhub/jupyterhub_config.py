@@ -49,6 +49,13 @@ c.DockerSpawner.extra_create_kwargs = {
 c.DockerSpawner.remove = True
 c.Spawner.cmd = '/usr/local/bin/start-notebook.sh'
 
+notebook_args = []
+single_user_default_url = os.environ.get('SINGLE_USER_DEFAULT_URL', '').strip()
+if single_user_default_url:
+    notebook_args.append(
+        '--SingleUserNotebookApp.default_url={}'.format(single_user_default_url))
+c.Spawner.args = notebook_args
+
 def get_username(spawner):
     return spawner.user.name
 

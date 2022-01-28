@@ -30,6 +30,7 @@ services:
         restart: always
         environment:
             SINGLE_USER_IMAGE: "${SINGLE_USER_IMAGE:-niicloudoperation/notebook}"
+            SINGLE_USER_DEFAULT_URL: "${SINGLE_USER_DEFAULT_URL:-}"
             BACKEND_NETWORK: "jupyterhub_backend"
             SERVER_SIGNATURE_HOST_PATH: "/var/lib/jupyterhub/data/server_signature"
             SHARED_DIR: "${SHARED_DIR:-/var/lib/jupyterhub/share}"

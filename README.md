@@ -143,6 +143,10 @@ Example:
 
     SINGLE_USER_IMAGE=niicloudoperation/notebook
 
+**SINGLE_USER_DEFAULT_URL**
+
+The URL the single-user server shuould start in.
+
 **CULL_ENABLE**
 
 If CULL_ENABLE is `yes` or `1`, enables culling idle single-user servers. The default value is `no`.

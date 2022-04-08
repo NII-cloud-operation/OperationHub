@@ -76,6 +76,11 @@ c.Spawner.environment = {
     'TZ': tz
 }
 
+if 'SINGLE_USER_APP' in os.environ:
+    c.Spawner.environment.update({
+        'JUPYTERHUB_SINGLEUSER_APP': os.environ['SINGLE_USER_APP']
+    })
+
 for key in os.environ.keys():
     if key.startswith('NBSEARCHDB_'):
         c.Spawner.environment[key] = os.environ[key]

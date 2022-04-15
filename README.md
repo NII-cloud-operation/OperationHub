@@ -147,6 +147,17 @@ Example:
 
 The URL the single-user server shuould start in.
 
+**SINGLE_USER_APP**
+
+The single-user server application class name.
+
+This option sets `JUPYTERHUB_SINGLEUSER_APP` environment variable in the
+single-user environment.
+You can select the legacy Jupyter Notebook server (`notebook.notebookapp.NotebookApp`)
+ or JupyterLab (`jupyter_server.serverapp.ServerApp`).
+
+The default is the legacy Jupyter Notebook server.
+
 **CULL_ENABLE**
 
 If CULL_ENABLE is `yes` or `1`, enables culling idle single-user servers. The default value is `no`.

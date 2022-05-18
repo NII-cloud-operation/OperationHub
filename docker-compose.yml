@@ -65,6 +65,9 @@ services:
             - '/var/lib/jupyterhub/passwd/group:/etc/group:ro'
             - '${SHARED_DIR:-/var/lib/jupyterhub/share}:/var/jupyterhub/share/'
             - './jupyterhub-logo.png:/var/jupyterhub/logo.png:ro'
+        command: >
+          /bin/bash -c
+          "jupyterhub upgrade-db; exec jupyterhub"
 
 networks:
     backend:

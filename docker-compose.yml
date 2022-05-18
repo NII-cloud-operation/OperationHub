@@ -67,7 +67,7 @@ services:
             - './jupyterhub-logo.png:/var/jupyterhub/logo.png:ro'
         command: >
           /bin/bash -c
-          "jupyterhub upgrade-db; exec jupyterhub"
+          "jupyterhub upgrade-db && exec jupyterhub"
 
 networks:
     backend:

@@ -34,15 +34,34 @@ c.DockerSpawner.use_internal_hostname = True
 c.DockerSpawner.image = os.environ.get('SINGLE_USER_IMAGE', 'niicloudoperation/notebook')
 c.DockerSpawner.network_name = os.environ['BACKEND_NETWORK']
 c.DockerSpawner.notebook_dir = '/home/{username}/notebooks'
-c.DockerSpawner.volumes = {
-    '/home/{username}': '/home/{username}',
-    shared_host_dir: '/home/{username}/notebooks/share'
-}
 server_signature_host_path = os.environ['SERVER_SIGNATURE_HOST_PATH']
-c.DockerSpawner.read_only_volumes = {
-    users_host_dir: '/home/{username}/notebooks/users',
-    server_signature_host_path: '/var/lib/jupyter/server_signature',
-}
+c.DockerSpawner.mounts = [
+    {
+        'target': '/home/{username}',
+        'source': '/home/{username}',
+        'type': 'bind',
+        'read_only': False,
+    },
+    {
+        'target': '/home/{username}/notebooks/share',
+        'source': shared_host_dir,
+        'type': 'bind',
+        'read_only': False,
+    },
+    {
+        'target': '/home/{username}/notebooks/users',
+        'source': users_host_dir,
+        'type': 'bind',
+        'read_only': True,
+        'propagation': 'rslave'
+    },
+    {
+        'target': '/var/lib/jupyter/server_signature',
+        'source': server_signature_host_path,
+        'type': 'bind',
+        'read_only': True,
+    }
+]
 c.DockerSpawner.extra_create_kwargs = {
     'user': 0
 }

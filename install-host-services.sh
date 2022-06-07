@@ -5,7 +5,7 @@ set -e
 
 # install python3 environment
 yum install -y epel-release
-yum install -y python36 python36-devel python36-libs python36-pip
+yum install -y python3 python3-devel python3-libs python3-pip
 pip3 install tornado
 
 # install service

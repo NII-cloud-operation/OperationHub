@@ -171,3 +171,12 @@ if cull_server == '1' or cull_server == 'yes':
 
 c.JupyterHub.services = services
 
+# load additional config files
+additional_config_path = os.environ.get('JUPYTERHUB_ADDITIONAL_CONFIG_PATH',
+                                        '/jupyterhub_config.d')
+if os.path.exists(additional_config_path):
+    for filename in sorted(os.listdir(additional_config_path)):
+        _, ext = os.path.splitext(filename)
+        if ext.lower() != '.py':
+            continue
+        load_subconfig(os.path.join(additional_config_path, filename))

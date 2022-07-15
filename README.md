@@ -187,10 +187,13 @@ The [Scrapbox](https://scrapbox.io/) project name and access token for [sidestic
 The [niicloudopration/notebook](https://hub.docker.com/r/niicloudoperation/notebook/) image includes sidestickies extension.
 You can enable sidestickies extension via the Nbextensions tab. Note: you need to enable both "Sidestickies for file tree" and "Sidestickies for notebook" nbextensions.
 
-**NBSEARCHDB_HOSTNAME**, **NBSEARCHDB_PORT**,  
-**NBSEARCHDB_USERNAME**, **NBSEARCHDB_PASSWORD**,  
-**NBSEARCHDB_DATABASE**, **NBSEARCHDB_COLLECTION**,  
-**NBSEARCHDB_MY_SERVER_URL**,  
+**NBSEARCHDB_SOLR_BASE_URL**,
+**NBSEARCHDB_SOLR_BASIC_AUTH_USERNAME**, **NBSEARCHDB_SOLR_BASIC_AUTH_PASSWORD**,
+**NBSEARCHDB_S3_ENDPOINT_URL**,
+**NBSEARCHDB_S3_ACCESS_KEY**, **NBSEARCHDB_S3_SECRET_KEY**,
+**NBSEARCHDB_S3_REGION_NAME**, **NBSEARCHDB_S3_BUCKET_NAME**,
+**NBSEARCHDB_SOLR_NOTEBOOK**, **NBSEARCHDB_SOLR_CELL**,
+**NBSEARCHDB_MY_SERVER_URL**,
 **NBSEARCHDB_AUTO_UPDATE**
 
 The configurations for [NBSearch](https://github.com/NII-cloud-operation/nbsearch).

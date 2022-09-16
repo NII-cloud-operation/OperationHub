@@ -9,6 +9,8 @@ RUN apt-get update && \
         python3-dev && \
     apt-get autoclean && apt-get clean && apt-get autoremove
 
+RUN python3 -m pip install --upgrade setuptools pip build wheel
+
 # freeze version of pip packages from upstream image
 RUN python3 -m pip list --format freeze > /tmp/requirements
 
@@ -33,6 +35,8 @@ FROM jupyterhub/jupyterhub:2.3
 
 # acl
 RUN apt-get update && apt-get install -y acl && apt-get autoclean && apt-get clean && apt-get autoremove
+
+RUN python3 -m pip install --no-cache --upgrade setuptools pip
 
 # install the wheels from first stage
 COPY --from=builder /tmp/wheelhouse /tmp/wheelhouse

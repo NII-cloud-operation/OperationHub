@@ -158,6 +158,13 @@ You can select the legacy Jupyter Notebook server (`notebook.notebookapp.Noteboo
 
 The default is the legacy Jupyter Notebook server.
 
+**SINGLE_USER_MEM_LIMIT**
+
+Maximum number of bytes a single-user notebook server is allowed to use.
+
+For an empty string, no limits are configured.
+For the values that can be set, see [c.DockerSpawner.mem_limit](https://jupyterhub-dockerspawner.readthedocs.io/en/latest/api/index.html#dockerspawner.DockerSpawner.mem_limit).
+
 **CULL_ENABLE**
 
 If CULL_ENABLE is `yes` or `1`, enables culling idle single-user servers. The default value is `no`.

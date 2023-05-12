@@ -66,6 +66,11 @@ c.DockerSpawner.extra_create_kwargs = {
     'user': 0
 }
 c.DockerSpawner.remove = True
+
+single_user_mem_limit = os.environ.get('SINGLE_USER_MEM_LIMIT', '')
+if len(single_user_mem_limit) > 0:
+    c.DockerSpawner.mem_limit = single_user_mem_limit
+
 c.Spawner.cmd = '/usr/local/bin/start-notebook.sh'
 
 notebook_args = []

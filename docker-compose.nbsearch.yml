@@ -1,0 +1,74 @@
+version: '3.5'
+
+volumes:
+  nbsearch_solr_data_vol:
+    external: false
+  nbsearch_minio_data_vol:
+    external: false
+
+services:
+  nbsearch-solr:
+    build:
+      context: ./images/solr
+    volumes:
+      - nbsearch_solr_data_vol:/var/solr/
+    restart: always
+    networks:
+      - backend
+
+  nbsearch-minio:
+    image: minio/minio:latest
+    environment:
+      MINIO_ACCESS_KEY: "nbsearchak"
+      MINIO_SECRET_KEY: "nbsearchsk"
+    volumes:
+      - nbsearch_minio_data_vol:/data
+    command: ['server', '/data', '--compat']
+    restart: always
+    networks:
+      - backend
+
+  nbsearch-provisioner:
+    image: bash:latest
+    volumes:
+      - '/home/user-notebooks:/user-notebooks'
+      - './images/solr/:/solr:ro'
+    command: bash /solr/provision.sh
+
+  nbsearch-crawler:
+    image: niicloudoperation/notebook:latest
+    volumes:
+      - '/home/user-notebooks:/home/jovyan/notebooks:ro'
+    environment:
+      TZ: 'JST-9'
+      NBSEARCHDB_SOLR_BASE_URL: "http://nbsearch-solr:8983"
+      NBSEARCHDB_SOLR_BASIC_AUTH_USERNAME:
+      NBSEARCHDB_SOLR_BASIC_AUTH_PASSWORD:
+      NBSEARCHDB_S3_ENDPOINT_URL: "http://nbsearch-minio:9000"
+      NBSEARCHDB_S3_ACCESS_KEY: "nbsearchak"
+      NBSEARCHDB_S3_SECRET_KEY: "nbsearchsk"
+      NBSEARCHDB_S3_REGION_NAME:
+      NBSEARCHDB_S3_BUCKET_NAME:
+      NBSEARCHDB_SOLR_NOTEBOOK: "jupyter-notebook"
+      NBSEARCHDB_SOLR_CELL: "jupyter-cell"
+      NBSEARCHDB_MY_SERVER_URL: "${NBSEARCHDB_MY_SERVER_URL:-http://localhost:8888/}"
+      NBSEARCHDB_AUTO_UPDATE: "1"
+    restart: always
+    networks:
+      - backend
+
+  jupyterhub:
+    # Override NBSEARCHDB_* environment variables
+    environment:
+      NBSEARCHDB_SOLR_BASE_URL: "http://nbsearch-solr:8983"
+      NBSEARCHDB_SOLR_BASIC_AUTH_USERNAME:
+      NBSEARCHDB_SOLR_BASIC_AUTH_PASSWORD:
+      NBSEARCHDB_S3_ENDPOINT_URL: "http://nbsearch-minio:9000"
+      NBSEARCHDB_S3_ACCESS_KEY: "nbsearchak"
+      NBSEARCHDB_S3_SECRET_KEY: "nbsearchsk"
+      NBSEARCHDB_S3_REGION_NAME:
+      NBSEARCHDB_S3_BUCKET_NAME:
+      NBSEARCHDB_SOLR_NOTEBOOK: "jupyter-notebook"
+      NBSEARCHDB_SOLR_CELL: "jupyter-cell"
+      NBSEARCHDB_MY_SERVER_URL: "${NBSEARCHDB_MY_SERVER_URL:-http://localhost:8888/}"
+      NBSEARCHDB_AUTO_UPDATE: "0"

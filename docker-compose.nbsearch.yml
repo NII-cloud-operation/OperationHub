@@ -16,6 +16,16 @@ services:
     networks:
       - backend
 
+  nbsearch-solr-proxy:
+    image: nginx
+    depends_on:
+      - nbsearch-solr
+    volumes:
+      - ./images/solr/nginx.conf:/etc/nginx/nginx.conf:ro
+    restart: always
+    networks:
+      - backend
+
   nbsearch-minio:
     image: minio/minio:latest
     environment:
@@ -72,3 +82,5 @@ services:
       NBSEARCHDB_SOLR_CELL: "jupyter-cell"
       NBSEARCHDB_MY_SERVER_URL: "${NBSEARCHDB_MY_SERVER_URL:-http://localhost:8888/}"
       NBSEARCHDB_AUTO_UPDATE: "0"
+    volumes:
+      - './images/solr/jupyterhub_config.py:/jupyterhub_config.d/solr.py:ro'

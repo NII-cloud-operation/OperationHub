@@ -1,3 +1,3 @@
-[submodule "images/solr/nbsearch"]
-	path = images/solr/nbsearch
+[submodule "images/nbsearch-solr/nbsearch"]
+	path = images/nbsearch-solr/nbsearch
 	url = https://github.com/NII-cloud-operation/nbsearch.git

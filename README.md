@@ -216,6 +216,14 @@ The configurations for [NBSearch](https://github.com/NII-cloud-operation/nbsearc
 
 See https://github.com/NII-cloud-operation/Jupyter-LC_docker#using-nbsearch about details.
 
+**NBWHISPER_SKYWAY_API_TOKEN**,
+**NBWHISPER_ROOM_MODE_FOR_WAITING_ROOM**,
+**NBWHISPER_ROOM_MODE_FOR_TALKING_ROOM**
+
+The configurations for [NBWhisper](https://github.com/NII-cloud-operation/nbwhisper).
+
+See https://github.com/NII-cloud-operation/Jupyter-LC_docker#using-nbwhisper about details.
+
 # Collecting container logs
 
 OperationHub outputs logs such as Nginx access logs and JupyterHub logs to docker logs.

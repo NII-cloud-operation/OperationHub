@@ -96,6 +96,15 @@ If everything went well, you should see a JupyterHub login page.
 
 **Caution:** The default image is better to be loaded beforehand to avoid a long wait and a possible time-out. 
 
+### Launching Solr for NBSearch
+
+If you want to use [NBSearch](https://github.com/NII-cloud-operation/nbsearch) you can start Apache Solr as a search engine together with JupyterHub.
+
+    $ sudo docker-compose -f docker-compose.yml -f docker-compose.nbsearch.yml build
+    $ sudo docker-compose -f docker-compose.yml -f docker-compose.nbsearch.yml up -d
+
+You can see the Solr dashboard from the Services > Solr in the Control Panel of the JupyterHub.
+
 # Create new user
 
 For creating a new user, use `useradd` command on the command line of the server.

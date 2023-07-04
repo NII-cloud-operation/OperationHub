@@ -122,6 +122,16 @@ if scrapbox_project_id and scrapbox_cookie_connect_sid:
         'SIDESTICKIES_SCRAPBOX_COOKIE_CONNECT_SID': scrapbox_cookie_connect_sid
     })
 
+ep_weave_url = os.environ.get('SIDESTICKIES_EP_WEAVE_URL')
+ep_weave_api_key = os.environ.get('SIDESTICKIES_EP_WEAVE_API_KEY')
+ep_weave_api_url = os.environ.get('SIDESTICKIES_EP_WEAVE_API_URL')
+if ep_weave_url:
+    c.Spawner.environment.update({
+        'SIDESTICKIES_EP_WEAVE_URL': ep_weave_url,
+        'SIDESTICKIES_EP_WEAVE_API_KEY': ep_weave_api_key,
+        'SIDESTICKIES_EP_WEAVE_API_URL': ep_weave_api_url,
+    })
+
 lc_wrapper_fluentd_host = os.environ.get('LC_WRAPPER_FLUENTD_HOST')
 if lc_wrapper_fluentd_host is not None and lc_wrapper_fluentd_host == '':
     lc_wrapper_fluentd_host = None

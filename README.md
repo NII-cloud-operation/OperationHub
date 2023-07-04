@@ -197,11 +197,13 @@ cell execution results to a Fluentd forward server.
 For using this feature, set the address and port of the Fluentd forward server to `LC_WRAPPER_FLUENTD_HOST`, `LC_WRAPPER_FLUENTD_PORT`.
 
 **SIDESTICKIES_SCRAPBOX_PROJECT_ID**, **SIDESTICKIES_SCRAPBOX_COOKIE_CONNECT_SID**
+**SIDESTICKIES_EP_WEAVE_URL**, **SIDESTICKIES_EP_WEAVE_API_KEY**, **SIDESTICKIES_EP_WEAVE_API_URL**
 
-The [Scrapbox](https://scrapbox.io/) project name and access token for [sidestickies](https://github.com/NII-cloud-operation/sidestickies) extension.
+Specify the [Scrapbox](https://scrapbox.io/) project name and access token (`SIDESTICKIES_SCRAPBOX_PROJECT_ID`, `SIDESTICKIES_SCRAPBOX_COOKIE_CONNECT_SID`), or [ep_weave](https://github.com/NII-cloud-operation/ep_weave) URL and APIKEY (`SIDESTICKIES_EP_WEAVE_URL`, `SIDESTICKIES_EP_WEAVE_API_KEY`, `SIDESTICKIES_EP_WEAVE_API_URL`) for [sidestickies](https://github.com/NII-cloud-operation/sidestickies) extension.
+
 
 The [niicloudopration/notebook](https://hub.docker.com/r/niicloudoperation/notebook/) image includes sidestickies extension.
-You can enable sidestickies extension via the Nbextensions tab. Note: you need to enable both "Sidestickies for file tree" and "Sidestickies for notebook" nbextensions.
+You can enable sidestickies extension via the Nbextensions tab. *Note: you need to enable both "Sidestickies for file tree" and "Sidestickies for notebook" nbextensions.*
 
 **NBSEARCHDB_SOLR_BASE_URL**,
 **NBSEARCHDB_SOLR_BASIC_AUTH_USERNAME**, **NBSEARCHDB_SOLR_BASIC_AUTH_PASSWORD**,

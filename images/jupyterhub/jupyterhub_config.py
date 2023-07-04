@@ -28,8 +28,17 @@ subprocess.check_output([
     '/usr/bin/setfacl', '-d', '-m', 'group::rwx,other:rx', shared_dir
 ])
 
+from dockerspawner import DockerSpawner
+
+class CustomDockerSpawner(DockerSpawner):
+    def get_args(self):
+        args = super().get_args()
+        # WORKAROUND: SingleUserNotebookApp.* preferences are ignored when ServerApp is specified
+        args.append(self.format_string('--ServerApp.root_dir=/home/{username}/notebooks'))
+        return args
+
 # Spawner
-c.JupyterHub.spawner_class = 'docker'
+c.JupyterHub.spawner_class = CustomDockerSpawner
 c.DockerSpawner.use_internal_hostname = True
 c.DockerSpawner.image = os.environ.get('SINGLE_USER_IMAGE', 'niicloudoperation/notebook')
 c.DockerSpawner.network_name = os.environ['BACKEND_NETWORK']
@@ -78,6 +87,9 @@ single_user_default_url = os.environ.get('SINGLE_USER_DEFAULT_URL', '').strip()
 if single_user_default_url:
     notebook_args.append(
         '--SingleUserNotebookApp.default_url={}'.format(single_user_default_url))
+    # WORKAROUND: SingleUserNotebookApp.* preferences are ignored when ServerApp is specified
+    notebook_args.append(
+        '--ServerApp.default_url={}'.format(single_user_default_url))
 c.Spawner.args = notebook_args
 
 def get_username(spawner):

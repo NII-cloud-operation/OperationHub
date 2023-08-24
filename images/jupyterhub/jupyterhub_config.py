@@ -154,6 +154,10 @@ if lc_wrapper_fluentd_host is not None:
 	'lc_wrapper_fluentd_port': lc_wrapper_fluentd_port,
     })
 
+for key in os.environ.keys():
+    if key.startswith('NBWHISPER_'):
+        c.Spawner.environment[key] = os.environ[key]
+
 def mount_user_nbdir(spawner):
     spawner.authenticator.mount_nbdir(spawner.user.name)
 

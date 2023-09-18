@@ -44,7 +44,8 @@ services:
       - '/home/user-notebooks:/user-notebooks'
 
   nbsearch-crawler:
-    image: niicloudoperation/notebook:latest
+    build:
+      context: ./images/nbsearch-crawler
     volumes:
       - '/home/user-notebooks:/home/jovyan/notebooks:ro'
     environment:
@@ -79,6 +80,6 @@ services:
       NBSEARCHDB_SOLR_NOTEBOOK: "jupyter-notebook"
       NBSEARCHDB_SOLR_CELL: "jupyter-cell"
       NBSEARCHDB_MY_SERVER_URL: "${NBSEARCHDB_MY_SERVER_URL:-http://localhost:8888/}"
-      NBSEARCHDB_AUTO_UPDATE: "0"
+      NBSEARCHDB_AUTO_UPDATE: ""
     volumes:
       - './config/nbsearch/jupyterhub_config.py:/jupyterhub_config.d/solr.py:ro'

@@ -44,21 +44,22 @@ services:
       - '/home/user-notebooks:/user-notebooks'
 
   nbsearch-crawler:
-    image: niicloudoperation/notebook:latest
+    build:
+      context: ./images/nbsearch-crawler
     volumes:
       - '/home/user-notebooks:/home/jovyan/notebooks:ro'
     environment:
       TZ: 'JST-9'
-      NBSEARCHDB_SOLR_BASE_URL: "http://nbsearch-solr:8983"
-      NBSEARCHDB_SOLR_BASIC_AUTH_USERNAME:
-      NBSEARCHDB_SOLR_BASIC_AUTH_PASSWORD:
-      NBSEARCHDB_S3_ENDPOINT_URL: "http://nbsearch-minio:9000"
-      NBSEARCHDB_S3_ACCESS_KEY: "nbsearchak"
-      NBSEARCHDB_S3_SECRET_KEY: "nbsearchsk"
-      NBSEARCHDB_S3_REGION_NAME:
-      NBSEARCHDB_S3_BUCKET_NAME:
-      NBSEARCHDB_SOLR_NOTEBOOK: "jupyter-notebook"
-      NBSEARCHDB_SOLR_CELL: "jupyter-cell"
+      NBSEARCHDB_SOLR_BASE_URL: "${NBSEARCHDB_SOLR_BASE_URL:-http://nbsearch-solr:8983}"
+      NBSEARCHDB_SOLR_BASIC_AUTH_USERNAME: "${NBSEARCHDB_SOLR_BASIC_AUTH_USERNAME:-}"
+      NBSEARCHDB_SOLR_BASIC_AUTH_PASSWORD: "${NBSEARCHDB_SOLR_BASIC_AUTH_PASSWORD:-}"
+      NBSEARCHDB_S3_ENDPOINT_URL: "${NBSEARCHDB_S3_ENDPOINT_URL:-http://nbsearch-minio:9000}"
+      NBSEARCHDB_S3_ACCESS_KEY: "${NBSEARCHDB_S3_ACCESS_KEY:-nbsearchak}"
+      NBSEARCHDB_S3_SECRET_KEY: "${NBSEARCHDB_S3_SECRET_KEY:-nbsearchsk}"
+      NBSEARCHDB_S3_REGION_NAME: "${NBSEARCHDB_S3_REGION_NAME:-}"
+      NBSEARCHDB_S3_BUCKET_NAME: "${NBSEARCHDB_S3_BUCKET_NAME:-notebooks}"
+      NBSEARCHDB_SOLR_NOTEBOOK: "${NBSEARCHDB_SOLR_NOTEBOOK:-jupyter-notebook}"
+      NBSEARCHDB_SOLR_CELL: "${NBSEARCHDB_SOLR_CELL:-jupyter-cell}"
       NBSEARCHDB_MY_SERVER_URL: "${NBSEARCHDB_MY_SERVER_URL:-http://localhost:8888/}"
       NBSEARCHDB_AUTO_UPDATE: "1"
     restart: always
@@ -68,16 +69,16 @@ services:
   jupyterhub:
     # Override NBSEARCHDB_* environment variables
     environment:
-      NBSEARCHDB_SOLR_BASE_URL: "http://nbsearch-solr:8983"
-      NBSEARCHDB_SOLR_BASIC_AUTH_USERNAME:
-      NBSEARCHDB_SOLR_BASIC_AUTH_PASSWORD:
-      NBSEARCHDB_S3_ENDPOINT_URL: "http://nbsearch-minio:9000"
-      NBSEARCHDB_S3_ACCESS_KEY: "nbsearchak"
-      NBSEARCHDB_S3_SECRET_KEY: "nbsearchsk"
-      NBSEARCHDB_S3_REGION_NAME:
-      NBSEARCHDB_S3_BUCKET_NAME:
-      NBSEARCHDB_SOLR_NOTEBOOK: "jupyter-notebook"
-      NBSEARCHDB_SOLR_CELL: "jupyter-cell"
+      NBSEARCHDB_SOLR_BASE_URL: "${NBSEARCHDB_SOLR_BASE_URL:-http://nbsearch-solr:8983}"
+      NBSEARCHDB_SOLR_BASIC_AUTH_USERNAME: "${NBSEARCHDB_SOLR_BASIC_AUTH_USERNAME:-}"
+      NBSEARCHDB_SOLR_BASIC_AUTH_PASSWORD: "${NBSEARCHDB_SOLR_BASIC_AUTH_PASSWORD:-}"
+      NBSEARCHDB_S3_ENDPOINT_URL: "${NBSEARCHDB_S3_ENDPOINT_URL:-http://nbsearch-minio:9000}"
+      NBSEARCHDB_S3_ACCESS_KEY: "${NBSEARCHDB_S3_ACCESS_KEY:-nbsearchak}"
+      NBSEARCHDB_S3_SECRET_KEY: "${NBSEARCHDB_S3_SECRET_KEY:-nbsearchsk}"
+      NBSEARCHDB_S3_REGION_NAME: "${NBSEARCHDB_S3_REGION_NAME:-}"
+      NBSEARCHDB_S3_BUCKET_NAME: "${NBSEARCHDB_S3_BUCKET_NAME:-notebooks}"
+      NBSEARCHDB_SOLR_NOTEBOOK: "${NBSEARCHDB_SOLR_NOTEBOOK:-jupyter-notebook}"
+      NBSEARCHDB_SOLR_CELL: "${NBSEARCHDB_SOLR_CELL:-jupyter-cell}"
       NBSEARCHDB_MY_SERVER_URL: "${NBSEARCHDB_MY_SERVER_URL:-http://localhost:8888/}"
       NBSEARCHDB_AUTO_UPDATE: "0"
     volumes:

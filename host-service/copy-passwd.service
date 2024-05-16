@@ -2,11 +2,12 @@
 Description=Copy passwd for OperationHub
 
 [Service]
-Type=oneshot
+Type=simple
 User=root
 Group=root
 ExecStartPre=/usr/bin/mkdir -p /var/lib/jupyterhub/passwd
-ExecStart=/usr/bin/bash -c 'cp -p /etc/{passwd,group,shadow} /var/lib/jupyterhub/passwd'
+ExecStart=/usr/local/bin/copy-passwd.sh
+Restart=always
 
 [Install]
 WantedBy=multi-user.target

@@ -1,5 +1,3 @@
-version: '3.5'
-
 volumes:
   nbsearch_solr_data_vol:
     external: false

@@ -1,4 +1,3 @@
-version: '3.5'
 services:
     proxy:
         build:
@@ -9,7 +8,7 @@ services:
         depends_on:
             - jupyterhub
         environment:
-            SERVER_NAME: "${SERVER_NAME:-${HOSTNAME}}"
+            SERVER_NAME: "${SERVER_NAME}"
         networks:
             - backend
         volumes:
@@ -37,6 +36,7 @@ services:
             SERVER_SIGNATURE_HOST_PATH: "/var/lib/jupyterhub/data/server_signature"
             SHARED_DIR: "${SHARED_DIR:-/var/lib/jupyterhub/share}"
             USERS_DIR: "${USERS_DIR:-/home/user-notebooks}"
+            ADMIN_GROUPS: "${ADMIN_GROUPS:-wheel}"
             DEBUG: "${DEBUG:-no}"
             CULL_SERVER: "${CULL_SERVER:-no}"
             CULL_SERVER_IDLE_TIMEOUT: "${CULL_SERVER_IDLE_TIMEOUT:-600}"

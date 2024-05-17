@@ -167,7 +167,7 @@ c.Spawner.pre_spawn_hook = mount_user_nbdir
 c.JupyterHub.authenticator_class = 'ophub-pam'
 c.LocalAuthenticator.create_system_users = True
 c.LocalAuthenticator.add_user_cmd = [sys.executable, '/usr/local/bin/add_user.py']
-c.PAMAuthenticator.admin_groups = {'wheel'}
+c.PAMAuthenticator.admin_groups = set(os.environ.get('ADMIN_GROUPS', '').split())
 c.Authenticator.blacklist = {'root'}
 
 # debug

@@ -18,7 +18,8 @@ It serves the following features:
 
 ## Prerequisites
 
-- A CentOS 7 server you have root access
+- A server you have root access
+    - Support CentOS 7, CentOS Stream 9, Rocky Linux 8 and 9, Ubuntu 22.04
 - Python 3.6 or later
 - Docker Engine and Docker Compose
 - TLS certificate and private key for HTTPS communication
@@ -34,9 +35,13 @@ Clone this repository to the server, change current working directory to the rep
 ## Step 2: Install Docker Engine and docker-compose
 
 Docker Engine and Docker Compose are required.
-You can install with `install-docker.sh` script.
+You can install with `install-docker-(distribution).sh` script.
 
-    $ sudo ./install-docker.sh
+    $ sudo ./install-docker-centos.sh
+
+or
+
+    $ sudo ./install-docker-ubuntu.sh
 
 ## Step 3: Install the host services for OperationHub
 
@@ -54,7 +59,6 @@ This script installs python 3 environment and the following systemd units.
 - `ophubuser.service`
   - REST API server for operation on the host system
   - It provides an API to mount user's notebook directory to a shared directory
-- `copy-passwd.path`
 - `copy-passwd.service`
   - If  `/etc/passwd`,  `/etc/shadow` and `/etc/group` are modifed, the units copy these files to `/var/lib/jupyterhub/passwd` to sync host and container users
 
@@ -84,12 +88,14 @@ If you want to make a user an administrator, execute the following command.
 
     $ sudo usermod -aG wheel (username)
 
+If the `wheel` group does not exist like Ubuntu, set the other group name to the `ADMIN_GROUPS` option.
+
 ## Step 7: Starting OperationHub
 
-Start OperationHub with `docker-compose`
+Start OperationHub with `docker compose`
 
-    $ sudo docker-compose build
-    $ sudo docker-compose up -d
+    $ sudo docker compose build
+    $ sudo docker compose up -d
 
 Try accessing https://(your domain name)/ from your browser.
 If everything went well, you should see a JupyterHub login page.
@@ -100,8 +106,8 @@ If everything went well, you should see a JupyterHub login page.
 
 If you want to use [NBSearch](https://github.com/NII-cloud-operation/nbsearch) you can start Apache Solr as a search engine together with JupyterHub.
 
-    $ sudo docker-compose -f docker-compose.yml -f docker-compose.nbsearch.yml build
-    $ sudo docker-compose -f docker-compose.yml -f docker-compose.nbsearch.yml up -d
+    $ sudo docker compose -f docker-compose.yml -f docker-compose.nbsearch.yml build
+    $ sudo docker compose -f docker-compose.yml -f docker-compose.nbsearch.yml up -d
 
 You can see the Solr dashboard from the Services > Solr in the Control Panel of the JupyterHub.
 
@@ -173,6 +179,15 @@ Maximum number of bytes a single-user notebook server is allowed to use.
 
 For an empty string, no limits are configured.
 For the values that can be set, see [c.DockerSpawner.mem_limit](https://jupyterhub-dockerspawner.readthedocs.io/en/latest/api/index.html#dockerspawner.DockerSpawner.mem_limit).
+
+**ADMIN_GROUPS**
+
+Authoritative list of user groups that determine JupyterHub admin access.
+
+The group names are separated by spaces.
+
+The default value is `wheel`.
+Please change this value if the `wheel` group does not exist like Ubuntu.
 
 **CULL_ENABLE**
 

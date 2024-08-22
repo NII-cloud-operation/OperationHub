@@ -9,8 +9,6 @@ RUN apt-get update && \
         python3-dev && \
     apt-get autoclean && apt-get clean && apt-get autoremove
 
-RUN python3 -m pip install --upgrade setuptools pip build wheel
-
 # freeze version of pip packages from upstream image
 RUN python3 -m pip list --format freeze > /tmp/requirements
 

@@ -121,6 +121,10 @@ Alternatively, add a user with the 'Add Users' button in the JupyterHub admin in
 
 The new user cannot log in before setting a password by `passwd` command.
 
+> [!CAUTION]
+> The username allows alpha-numeric only.
+>
+
 # The image to use for single-user servers
 
 The default image is [niicloudopration/notebook](https://hub.docker.com/r/niicloudoperation/notebook/).

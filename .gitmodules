@@ -1,3 +1,6 @@
 [submodule "images/nbsearch-solr/nbsearch"]
 	path = images/nbsearch-solr/nbsearch
 	url = https://github.com/NII-cloud-operation/nbsearch.git
+[submodule "images/ep_weave/ep_weave"]
+	path = images/ep_weave/ep_weave
+	url = https://github.com/NII-cloud-operation/ep_weave.git

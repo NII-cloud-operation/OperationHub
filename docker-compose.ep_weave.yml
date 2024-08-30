@@ -40,11 +40,13 @@ services:
       DB_USER: etherpaduser
       LOGLEVEL: "debug"
       REQUIRE_AUTHENTICATION: "true"
-      EP_WEAVE_OAUTH_CLIENT_ID: ${EP_WEAVE_OAUTH_CLIENT_ID:-ep_weave_oauth_client}
-      EP_WEAVE_OAUTH_CLIENT_SECRET: ${EP_WEAVE_OAUTH_CLIENT_SECRET:-ep_weave_oauth_secret}
+      EP_WEAVE_OAUTH_CLIENT_ID: ${EP_WEAVE_OAUTH_CLIENT_ID:-ep_weave_oauth_client_changeme}
+      EP_WEAVE_OAUTH_CLIENT_SECRET: ${EP_WEAVE_OAUTH_CLIENT_SECRET:-ep_weave_oauth_secret_changeme}
       EP_WEAVE_BASE_URL: "https://${SERVER_NAME}/services/ep_weave/"
+      EP_WEAVE_API_KEY: ${EP_WEAVE_API_KEY:-ep_weave_api_key_changeme}
     volumes:
       - ./images/ep_weave/settings/local.json:/opt/etherpad-lite/settings.json:ro
+    command: /bin/bash -c "echo ${EP_WEAVE_API_KEY:-ep_weave_api_key_changeme} > /opt/etherpad-lite/APIKEY.txt && pnpm run prod --apikey /opt/etherpad-lite/APIKEY.txt"
     depends_on:
       - ep-weave-postgresql
       - ep-weave-solr
@@ -65,20 +67,11 @@ services:
   jupyterhub:
     # Override NBSEARCHDB_* environment variables
     environment:
-    #   NBSEARCHDB_SOLR_BASE_URL: "${NBSEARCHDB_SOLR_BASE_URL:-http://nbsearch-solr:8983}"
-    #   NBSEARCHDB_SOLR_BASIC_AUTH_USERNAME: "${NBSEARCHDB_SOLR_BASIC_AUTH_USERNAME:-}"
-    #   NBSEARCHDB_SOLR_BASIC_AUTH_PASSWORD: "${NBSEARCHDB_SOLR_BASIC_AUTH_PASSWORD:-}"
-    #   NBSEARCHDB_S3_ENDPOINT_URL: "${NBSEARCHDB_S3_ENDPOINT_URL:-http://nbsearch-minio:9000}"
-    #   NBSEARCHDB_S3_ACCESS_KEY: "${NBSEARCHDB_S3_ACCESS_KEY:-nbsearchak}"
-    #   NBSEARCHDB_S3_SECRET_KEY: "${NBSEARCHDB_S3_SECRET_KEY:-nbsearchsk}"
-    #   NBSEARCHDB_S3_REGION_NAME: "${NBSEARCHDB_S3_REGION_NAME:-}"
-    #   NBSEARCHDB_S3_BUCKET_NAME: "${NBSEARCHDB_S3_BUCKET_NAME:-notebooks}"
-    #   NBSEARCHDB_SOLR_NOTEBOOK: "${NBSEARCHDB_SOLR_NOTEBOOK:-jupyter-notebook}"
-    #   NBSEARCHDB_SOLR_CELL: "${NBSEARCHDB_SOLR_CELL:-jupyter-cell}"
-    #   NBSEARCHDB_MY_SERVER_URL: "${NBSEARCHDB_MY_SERVER_URL:-http://localhost:8888/}"
-    #   NBSEARCHDB_AUTO_UPDATE: "0"
-      EP_WEAVE_OAUTH_CLIENT_ID: ${EP_WEAVE_OAUTH_CLIENT_ID:-ep_weave_oauth_client}
-      EP_WEAVE_OAUTH_CLIENT_SECRET: ${EP_WEAVE_OAUTH_CLIENT_SECRET:-ep_weave_oauth_secret}
+      SIDESTICKIES_EP_WEAVE_URL: "https://${SERVER_NAME}/services/ep_weave/"
+      SIDESTICKIES_EP_WEAVE_API_KEY: "${EP_WEAVE_API_KEY:-ep_weave_api_key_changeme}"
+      SIDESTICKIES_EP_WEAVE_API_URL: "http://ep-weave-etherpad-proxy/services/ep_weave/"
+      EP_WEAVE_OAUTH_CLIENT_ID: ${EP_WEAVE_OAUTH_CLIENT_ID:-ep_weave_oauth_client_changeme}
+      EP_WEAVE_OAUTH_CLIENT_SECRET: ${EP_WEAVE_OAUTH_CLIENT_SECRET:-ep_weave_oauth_secret_changeme}
       SERVER_NAME: "${SERVER_NAME}"
     volumes:
       - './config/ep_weave/jupyterhub_config.py:/jupyterhub_config.d/ep_weave.py:ro'

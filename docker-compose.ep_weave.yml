@@ -69,6 +69,7 @@ services:
   jupyterhub:
     # Override NBSEARCHDB_* environment variables
     environment:
+      EP_WEAVE_ENABLE_OIDC_SERVICE: "1"
       SIDESTICKIES_EP_WEAVE_URL: "https://${SERVER_NAME}/services/ep_weave/"
       SIDESTICKIES_EP_WEAVE_API_KEY: "${EP_WEAVE_API_KEY:-ep_weave_api_key_changeme}"
       SIDESTICKIES_EP_WEAVE_API_URL: "http://ep-weave-etherpad-proxy/services/ep_weave/"
@@ -76,4 +77,5 @@ services:
       EP_WEAVE_OAUTH_CLIENT_SECRET: ${EP_WEAVE_OAUTH_CLIENT_SECRET:-ep_weave_oauth_secret_changeme}
       SERVER_NAME: "${SERVER_NAME}"
     volumes:
+      - './config/oidc/jupyterhub_config.py:/jupyterhub_config.d/oidc.py:ro'
       - './config/ep_weave/jupyterhub_config.py:/jupyterhub_config.d/ep_weave.py:ro'

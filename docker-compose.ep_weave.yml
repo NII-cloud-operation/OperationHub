@@ -31,6 +31,8 @@ services:
     build:
       context: ./images/ep_weave/ep_weave
       dockerfile: Dockerfile
+      args:
+        - ETHERPAD_IMAGE_TAG=develop
     environment:
       DB_HOST: ep-weave-postgresql
       DB_NAME: etherpad

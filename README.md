@@ -104,12 +104,40 @@ If everything went well, you should see a JupyterHub login page.
 
 ### Launching Solr for NBSearch
 
-If you want to use [NBSearch](https://github.com/NII-cloud-operation/nbsearch) you can start Apache Solr as a search engine together with JupyterHub.
+If you want to use [NBSearch](https://github.com/NII-cloud-operation/nbsearch), you can start Apache Solr as a search engine together with JupyterHub.
 
+    $ git submodule update --init
     $ sudo docker compose -f docker-compose.yml -f docker-compose.nbsearch.yml build
     $ sudo docker compose -f docker-compose.yml -f docker-compose.nbsearch.yml up -d
 
+You should define the environment variables for NBSearch in the `.env` file to secure the service.
+
+    NBSEARCHDB_OAUTH_CLIENT_ID=(random string)
+    NBSEARCHDB_OAUTH_CLIENT_SECRET=(random string)
+    NBSEARCHDB_COOKIE_SECRET=(random string*)
+
+*refer to https://oauth2-proxy.github.io/oauth2-proxy/configuration/overview/#generating-a-cookie-secret
+
 You can see the Solr dashboard from the Services > Solr in the Control Panel of the JupyterHub.
+
+### Launching ep_weave for Sidestickies
+
+If you want to use [sidestickies](https://github.com/NII-cloud-operation/sidestickies), you can start [ep_weave](https://github.com/NII-cloud-operation/ep_weave) as a backend server together with JupyterHub.
+
+    $ git submodule update --init
+    $ sudo docker compose -f docker-compose.yml -f docker-compose.ep_weave.yml build
+    $ sudo docker compose -f docker-compose.yml -f docker-compose.ep_weave.yml up -d
+
+You should define the environment variables for ep_weave in the `.env` file to secure the service.
+
+    EP_WEAVE_OAUTH_CLIENT_ID=(random string)
+    EP_WEAVE_OAUTH_CLIENT_SECRET=(random string)
+    EP_WEAVE_API_KEY=(random string)
+
+> [!CAUTION]
+> sidestickies with ep_weave requires the sidestickies extension support in the feature-lab image.
+
+You can see the ep_weave dashboard from the Services > ep_weave in the Control Panel of the JupyterHub.
 
 # Create new user
 
@@ -312,3 +340,39 @@ This directory is used to sync host and container users.
 ## About Internals
 
 ![internals](docs/internals.png)
+
+### Services
+
+docker-compose.*.yml files define the additional services for extensions.
+
+- `docker-compose.nbsearch.yml` includes the services for NBSearch.
+- `docker-compose.ep_weave.yml` includes the services for ep_weave.
+
+You can start all services with the following command.
+
+    $ sudo docker compose -f docker-compose.yml -f docker-compose.nbsearch.yml -f docker-compose.ep_weave.yml up -d
+
+```mermaid
+graph TD
+    JupyterHub[JupyterHub] -- service --> Service[jupyterhub_oidcp]
+    JupyterHub -- service --> SolrProxy[oauth2-proxy for Solr]
+    JupyterHub -- service --> EPWeaveProxy[nginx for ep_weave]
+    SolrProxy -- OpenID Connect --> Service
+    ep_weave -- OpenID Connect --> Service
+    JupyterHub -- spawn --> JupyterNotebook[single-user server]
+    JupyterNotebook -- extension --> NBSearch[NBSearch]
+    JupyterNotebook -- extension --> Sidestickies[Sidestickies]
+
+    subgraph NBSearchGroup[docker-compose.nbsearch.yml]
+        NBSearch --> SolrNBSearch[Solr for NBSearch]
+        NBSearch -- S3 --> MinIO[MinIO for NBSearch]
+        SolrProxy -- Reverse Proxy --> SolrNBSearch
+    end
+
+    subgraph EPWeaveGroup[docker-compose.ep_weave.yml]
+        ep_weave[ep_weave] --> SolrEPWeave[Solr for ep_weave]
+        ep_weave --> Postgres[PostgreSQL for ep_weave]
+        EPWeaveProxy -- Reverse Proxy --> ep_weave
+        Sidestickies -- API --> ep_weave
+    end
+```

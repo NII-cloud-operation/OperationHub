@@ -31,7 +31,7 @@ RUN python3 -m pip wheel --wheel-dir wheelhouse --constraint requirements \
 
 # jupyterhub-oidc-provider
 RUN python3 -m pip wheel --wheel-dir wheelhouse --constraint requirements \
-    git+https://github.com/yacchin1205/jupyterhub-oidc-provider.git@fix/flake8
+    git+https://github.com/NII-cloud-operation/jupyterhub-oidc-provider.git
 
 FROM jupyterhub/jupyterhub:2.3
 

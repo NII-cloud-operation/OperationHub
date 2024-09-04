@@ -1,0 +1,81 @@
+volumes:
+  ep_weave_postgres_data_vol:
+    external: false
+  ep_weave_solr_data_vol:
+    external: false
+
+services:
+  ep-weave-solr:
+    build:
+      context: ./images/ep_weave/ep_weave
+      dockerfile: solr/Dockerfile
+    volumes:
+      - ep_weave_solr_data_vol:/var/solr/
+    restart: always
+    networks:
+      - backend
+
+  ep-weave-postgresql:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: etherpad
+      POSTGRES_USER: etherpaduser
+      POSTGRES_PASSWORD: etherpadpass
+    volumes:
+      - ep_weave_postgres_data_vol:/var/lib/postgresql/data/
+    restart: always
+    networks:
+      - backend
+
+  ep-weave-etherpad:
+    build:
+      context: ./images/ep_weave/ep_weave
+      dockerfile: Dockerfile
+      args:
+        - ETHERPAD_IMAGE_TAG=develop
+    environment:
+      DB_HOST: ep-weave-postgresql
+      DB_NAME: etherpad
+      DB_PASS: etherpadpass
+      DB_PORT: 5432
+      DB_TYPE: postgres
+      DB_USER: etherpaduser
+      LOGLEVEL: "debug"
+      REQUIRE_AUTHENTICATION: "true"
+      EP_WEAVE_OAUTH_CLIENT_ID: ${EP_WEAVE_OAUTH_CLIENT_ID:-ep_weave_oauth_client_changeme}
+      EP_WEAVE_OAUTH_CLIENT_SECRET: ${EP_WEAVE_OAUTH_CLIENT_SECRET:-ep_weave_oauth_secret_changeme}
+      EP_WEAVE_BASE_URL: "https://${SERVER_NAME}/services/ep_weave/"
+      EP_WEAVE_API_KEY: ${EP_WEAVE_API_KEY:-ep_weave_api_key_changeme}
+    volumes:
+      - ./images/ep_weave/settings/local.json:/opt/etherpad-lite/settings.json:ro
+    command: /bin/bash -c "echo ${EP_WEAVE_API_KEY:-ep_weave_api_key_changeme} > /opt/etherpad-lite/APIKEY.txt && pnpm run prod --apikey /opt/etherpad-lite/APIKEY.txt"
+    depends_on:
+      - ep-weave-postgresql
+      - ep-weave-solr
+      - jupyterhub
+    restart: always
+    networks:
+      - backend
+
+  ep-weave-etherpad-proxy:
+    build:
+      context: ./images/ep_weave-etherpad-proxy
+    depends_on:
+      - ep-weave-etherpad
+    restart: always
+    networks:
+      - backend
+
+  jupyterhub:
+    # Override NBSEARCHDB_* environment variables
+    environment:
+      EP_WEAVE_ENABLE_OIDC_SERVICE: "1"
+      SIDESTICKIES_EP_WEAVE_URL: "https://${SERVER_NAME}/services/ep_weave/"
+      SIDESTICKIES_EP_WEAVE_API_KEY: "${EP_WEAVE_API_KEY:-ep_weave_api_key_changeme}"
+      SIDESTICKIES_EP_WEAVE_API_URL: "http://ep-weave-etherpad-proxy/services/ep_weave/"
+      EP_WEAVE_OAUTH_CLIENT_ID: ${EP_WEAVE_OAUTH_CLIENT_ID:-ep_weave_oauth_client_changeme}
+      EP_WEAVE_OAUTH_CLIENT_SECRET: ${EP_WEAVE_OAUTH_CLIENT_SECRET:-ep_weave_oauth_secret_changeme}
+      SERVER_NAME: "${SERVER_NAME}"
+    volumes:
+      - './config/oidc/jupyterhub_config.py:/jupyterhub_config.d/oidc.py:ro'
+      - './config/ep_weave/jupyterhub_config.py:/jupyterhub_config.d/ep_weave.py:ro'

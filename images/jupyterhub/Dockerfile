@@ -29,6 +29,10 @@ RUN python3 -m pip wheel --wheel-dir wheelhouse --constraint requirements \
     /tmp/authenticator && \
     rm -rf /tmp/authenticator
 
+# jupyterhub-oidc-provider
+RUN python3 -m pip wheel --wheel-dir wheelhouse --constraint requirements \
+    git+https://github.com/NII-cloud-operation/jupyterhub-oidc-provider.git
+
 FROM jupyterhub/jupyterhub:2.3
 
 # acl

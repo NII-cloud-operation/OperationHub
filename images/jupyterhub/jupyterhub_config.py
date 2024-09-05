@@ -155,7 +155,7 @@ if lc_wrapper_fluentd_host is not None:
     })
 
 for key in os.environ.keys():
-    if key.startswith('NBWHISPER_'):
+    if key.startswith('NBWHISPER_') and os.environ[key]:
         c.Spawner.environment[key] = os.environ[key]
 
 def mount_user_nbdir(spawner):

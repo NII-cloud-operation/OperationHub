@@ -101,7 +101,7 @@ services:
       NBSEARCHDB_SOLR_NOTEBOOK: "${NBSEARCHDB_SOLR_NOTEBOOK:-jupyter-notebook}"
       NBSEARCHDB_SOLR_CELL: "${NBSEARCHDB_SOLR_CELL:-jupyter-cell}"
       NBSEARCHDB_MY_SERVER_URL: "${NBSEARCHDB_MY_SERVER_URL:-http://localhost:8888/}"
-      NBSEARCHDB_AUTO_UPDATE: "0"
+      NBSEARCHDB_AUTO_UPDATE: ""
       NBSEARCHDB_OAUTH_CLIENT_ID: "${NBSEARCHDB_OAUTH_CLIENT_ID:-nbsearchdb_oauth_client_changeme}"
       NBSEARCHDB_OAUTH_CLIENT_SECRET: "${NBSEARCHDB_OAUTH_CLIENT_SECRET:-nbsearchdb_oauth_secret_changeme}"
     volumes:

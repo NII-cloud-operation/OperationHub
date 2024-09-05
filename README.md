@@ -120,6 +120,9 @@ You should define the environment variables for NBSearch in the `.env` file to s
 
 You can see the Solr dashboard from the Services > Solr in the Control Panel of the JupyterHub.
 
+> [!CAUTION]
+> You should specify the port number to the SERVER_NAME environment variable (such as `hostname:port`) in the `.env` file when you will not use the default port number (443) as for the JupyterHub.
+
 ### Launching ep_weave for Sidestickies
 
 If you want to use [sidestickies](https://github.com/NII-cloud-operation/sidestickies), you can start [ep_weave](https://github.com/NII-cloud-operation/ep_weave) as a backend server together with JupyterHub.
@@ -136,6 +139,9 @@ You should define the environment variables for ep_weave in the `.env` file to s
 
 > [!CAUTION]
 > sidestickies with ep_weave requires the sidestickies extension support in the feature-lab image.
+
+> [!CAUTION]
+> You should specify the port number to the SERVER_NAME environment variable (such as `hostname:port`) in the `.env` file when you will not use the default port number (443) as for the JupyterHub.
 
 You can see the ep_weave dashboard from the Services > ep_weave in the Control Panel of the JupyterHub.
 
@@ -265,11 +271,24 @@ The configurations for [NBSearch](https://github.com/NII-cloud-operation/nbsearc
 
 See https://github.com/NII-cloud-operation/Jupyter-LC_docker#using-nbsearch about details.
 
+**NBWHISPER_SIGNALING_URL**,
+**NBWHISPER_SORA_API_KEY**,
+**NBWHISPER_CHANNEL_ID_PREFIX**,
+**NBWHISPER_CHANNEL_ID_SUFFIX**,
+**NBWHISPER_SHARE_CURRENT_TAB_ONLY**
+
+The configurations for [NBWhisper](https://github.com/NII-cloud-operation/nbwhisper).
+
+See https://github.com/NII-cloud-operation/Jupyter-LC_docker/tree/feature/lab?tab=readme-ov-file#using-nbwhisper about details.
+
+> [!CAUTION]
+> Currently these environment variables are supported only in the feature-lab image.
+
 **NBWHISPER_SKYWAY_API_TOKEN**,
 **NBWHISPER_ROOM_MODE_FOR_WAITING_ROOM**,
 **NBWHISPER_ROOM_MODE_FOR_TALKING_ROOM**
 
-The configurations for [NBWhisper](https://github.com/NII-cloud-operation/nbwhisper).
+The configurations for (legacy) [NBWhisper](https://github.com/NII-cloud-operation/nbwhisper).
 
 See https://github.com/NII-cloud-operation/Jupyter-LC_docker#using-nbwhisper about details.
 

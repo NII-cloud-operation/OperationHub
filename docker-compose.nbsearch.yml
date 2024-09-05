@@ -67,7 +67,12 @@ services:
     build:
       context: ./images/nbsearch-crawler
     volumes:
-      - '/home/user-notebooks:/home/jovyan/notebooks:ro'
+      - type: bind
+        source: /home/user-notebooks
+        target: /home/jovyan/notebooks
+        read_only: true
+        bind:
+          propagation: rslave
     environment:
       TZ: 'JST-9'
       NBSEARCHDB_SOLR_BASE_URL: "${NBSEARCHDB_SOLR_BASE_URL:-http://nbsearch-solr:8983}"

@@ -1,0 +1,36 @@
+volumes:
+  jenkins_home_vol: {}
+
+services:
+  jenkins:
+    build: ./images/jenkins
+    environment:
+    - JENKINS_OPTS="--prefix=/services/jenkins"
+    - JAVA_OPTS="-Djenkins.install.runSetupWizard=false"
+    - USERS_DIR="/home/user-notebooks"
+    networks:
+    - backend
+    restart: on-failure
+    volumes:
+    - jenkins_home_vol:/var/jenkins_home
+    - /var/run/docker.sock:/var/run/docker.sock
+    - ${USERS_DIR:-/home/user-notebooks}:/home/user-notebooks:ro
+
+  jenkins-proxy:
+    build:
+      context: ./images/jenkins-proxy
+    depends_on:
+      - jenkins
+    restart: always
+    networks:
+      - backend
+
+  jupyterhub:
+    environment:
+      JENKINS_ENABLE_OIDC_SERVICE: "1"
+      JENKINS_OAUTH_CLIENT_ID: ${JENKINS_OAUTH_CLIENT_ID:-jenkins_oauth_client_changeme}
+      JENKINS_OAUTH_CLIENT_SECRET: ${JENKINS_OAUTH_CLIENT_SECRET:-jenkins_oauth_secret_changeme}
+      SERVER_NAME: "${SERVER_NAME}"
+    volumes:
+      - './config/oidc/jupyterhub_config.py:/jupyterhub_config.d/oidc.py:ro'
+      - './config/jenkins/jupyterhub_config.py:/jupyterhub_config.d/jenkins.py:ro'

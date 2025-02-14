@@ -45,6 +45,9 @@ setup_args = dict(
             'ophub-pam = ophubauthenticator:OphubPAMAuthenticator',
         ],
     },
+    install_requires = [
+        'aiohttp>=3.11.12',
+    ],
     cmdclass = {
         'bdist_egg': bdist_egg if 'bdist_egg' in sys.argv else bdist_egg_disabled,
     }

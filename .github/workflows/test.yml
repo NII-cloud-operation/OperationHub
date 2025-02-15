@@ -143,14 +143,14 @@ jobs:
             echo "Waiting for solr to start"
             max_retries=10
             while [ $max_retries -gt 0 ]; do
-              if curl -s -o /dev/null -w "%{http_code}" --insecure https://localhost/services/solr | grep -q "301"; then
+              if curl -s -o /dev/null -w "%{http_code}" --insecure https://localhost/services/solr | grep -q "302"; then
                 break
               fi
               curl -vvvv --insecure https://localhost/services/solr
               max_retries=$((max_retries-1))
               sleep 10
             done
-            if ! curl -s -o /dev/null -w "%{http_code}" --insecure https://localhost/services/solr | grep -q "301"; then
+            if ! curl -s -o /dev/null -w "%{http_code}" --insecure https://localhost/services/solr | grep -q "302"; then
               echo "solr did not start"
               sudo docker compose ${{ matrix.compose_files }} logs nbsearch
               exit 1
@@ -182,7 +182,7 @@ jobs:
             mkdir ../playwright-results/$OPHUB_USERNAME
             pytest --video=on --output=../playwright-results/$OPHUB_USERNAME
 
-            # Add new user and login again with new user
+            # Add new user and login again with new user(non-admin)
             export OPHUB_USERNAME=testuser2
             sudo useradd -m -s /bin/bash $OPHUB_USERNAME
             # generate test password

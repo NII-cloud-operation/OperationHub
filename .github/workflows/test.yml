@@ -1,0 +1,205 @@
+name: Integration Tests
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build_and_test:
+    strategy:
+        matrix:
+          ep_weave: [false, true]
+          nbsearch: [false, true]
+          include:
+            - ep_weave: false
+              nbsearch: false
+              compose_files: ''
+              label: 'default'
+            - ep_weave: true
+              nbsearch: false
+              compose_files: '-f docker-compose.yml -f docker-compose.ep_weave.yml'
+              label: 'ep_weave'
+            - nbsearch: true
+              ep_weave: false
+              compose_files: '-f docker-compose.yml -f docker-compose.nbsearch.yml'
+              label: 'nbsearch'
+            - ep_weave: true
+              nbsearch: true
+              compose_files: '-f docker-compose.yml -f docker-compose.ep_weave.yml -f docker-compose.nbsearch.yml'
+              label: 'ep_weave_and_nbsearch'
+    runs-on: ubuntu-20.04
+    name: Build and Test (${{ matrix.label }})
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install packages
+        run: |
+            set -xe
+
+            export OPHUB_SERVICE_EP_WEAVE=${{ matrix.ep_weave }}
+            export OPHUB_SERVICE_NBSEARCH=${{ matrix.nbsearch }}
+            if [ $OPHUB_SERVICE_EP_WEAVE = true ] || [ $OPHUB_SERVICE_NBSEARCH = true ]; then
+              git submodule update --init
+            fi
+
+            sudo ./install-docker-ubuntu.sh
+            sudo ./install-host-services.sh
+
+            mkdir cert
+            openssl req -x509 -newkey rsa:4096 -keyout cert/server.key -out cert/server.cer -sha256 -days 3650 -nodes -subj "/C=XX/ST=StateName/L=CityName/O=CompanyName/OU=CompanySectionName/CN=localhost"
+
+            cat <<EOF > .env
+            SERVER_NAME=localhost
+            SINGLE_USER_IMAGE=niicloudoperation/notebook:feature-lab
+            ADMIN_GROUPS=admin sudo
+            EOF
+
+            # Skip pulling the image because playwright-tests has no access to the jupyter server.
+            # sudo docker pull niicloudoperation/notebook:feature-lab
+      - name: Prepare test user
+        run: |
+            set -xe
+
+            sudo useradd -m -s /bin/bash testuser
+            # generate test password
+            export PASSWORD=$(openssl rand -base64 12)
+            echo "testuser:$PASSWORD" | sudo chpasswd
+            sudo usermod -aG sudo testuser
+            echo "OPHUB_USERNAME=testuser" >> $GITHUB_ENV
+            echo "OPHUB_PASSWORD=$PASSWORD" >> $GITHUB_ENV
+      - name: Start JupyterHub
+        run: |
+            set -xe
+
+            cat .env
+            sudo docker compose ${{ matrix.compose_files }} build
+            sudo docker compose ${{ matrix.compose_files }} up -d
+      - name: Wait for JupyterHub to start
+        run: |
+            set -xe
+
+            sudo docker compose ${{ matrix.compose_files }} ps
+            # waiting for jupyterhub to start
+            echo "Waiting for JupyterHub to start"
+            max_retries=10
+            while [ $max_retries -gt 0 ]; do
+              if sudo docker compose ${{ matrix.compose_files }} logs jupyterhub | grep -q "JupyterHub is now running"; then
+                break
+              fi
+              max_retries=$((max_retries-1))
+              sleep 10
+            done
+            if ! sudo docker compose logs jupyterhub | grep -q "JupyterHub is now running"; then
+              echo "JupyterHub did not start"
+              sudo docker compose ${{ matrix.compose_files }} logs jupyterhub
+              exit 1
+            fi
+            sudo docker compose ${{ matrix.compose_files }} ps
+            # waiting for proxy to start
+            echo "Waiting for Proxy to start"
+            max_retries=10
+            while [ $max_retries -gt 0 ]; do
+              if curl -s -o /dev/null -w "%{http_code}" --insecure https://localhost/hub/login | grep -q "200"; then
+                break
+              fi
+              curl -vvvv --insecure https://localhost/hub/login
+              max_retries=$((max_retries-1))
+              sleep 10
+            done
+            if ! curl -s -o /dev/null -w "%{http_code}" --insecure https://localhost/hub/login | grep -q "200"; then
+              echo "Proxy did not start"
+              sudo docker compose ${{ matrix.compose_files }} logs proxy
+              exit 1
+            fi
+            sudo docker compose ${{ matrix.compose_files }} ps
+      - name: Wait for ep_weave to start
+        if: matrix.ep_weave
+        run: |
+            set -xe
+
+            echo "Waiting for ep_weave to start"
+            max_retries=10
+            while [ $max_retries -gt 0 ]; do
+              if curl -s -o /dev/null -w "%{http_code}" --insecure https://localhost/services/ep_weave | grep -q "301"; then
+                break
+              fi
+              curl -vvvv --insecure https://localhost/services/ep_weave
+              max_retries=$((max_retries-1))
+              sleep 10
+            done
+            if ! curl -s -o /dev/null -w "%{http_code}" --insecure https://localhost/services/ep_weave | grep -q "301"; then
+              echo "ep_weave did not start"
+              sudo docker compose ${{ matrix.compose_files }} logs ep_weave
+              exit 1
+            fi
+      - name: Wait for solr to start
+        if: matrix.nbsearch
+        run: |
+            set -xe
+
+            echo "Waiting for solr to start"
+            max_retries=10
+            while [ $max_retries -gt 0 ]; do
+              if curl -s -o /dev/null -w "%{http_code}" --insecure https://localhost/services/solr | grep -q "301"; then
+                break
+              fi
+              curl -vvvv --insecure https://localhost/services/solr
+              max_retries=$((max_retries-1))
+              sleep 10
+            done
+            if ! curl -s -o /dev/null -w "%{http_code}" --insecure https://localhost/services/solr | grep -q "301"; then
+              echo "solr did not start"
+              sudo docker compose ${{ matrix.compose_files }} logs nbsearch
+              exit 1
+            fi
+      - name: Install python for playwright-tests
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install playwright
+        run: |
+            set -xe
+
+            cd playwright-tests
+            pip3 install -r requirements.txt
+            playwright install
+      - name: Run integration tests
+        run: |
+            set -xe
+
+            mkdir playwright-results
+
+            export OPHUB_IGNORE_HTTPS_ERRORS=1
+            export OPHUB_SERVICE_EP_WEAVE=${{ matrix.ep_weave }}
+            export OPHUB_SERVICE_NBSEARCH=${{ matrix.nbsearch }}
+
+            cd playwright-tests
+            export OPHUB_URL=https://localhost
+            echo "Playwright tests with $OPHUB_USERNAME"
+            mkdir ../playwright-results/$OPHUB_USERNAME
+            pytest --video=on --output=../playwright-results/$OPHUB_USERNAME
+
+            # Add new user and login again with new user
+            export OPHUB_USERNAME=testuser2
+            sudo useradd -m -s /bin/bash $OPHUB_USERNAME
+            # generate test password
+            export OPHUB_PASSWORD=$(openssl rand -base64 12)
+            echo "$OPHUB_USERNAME:$OPHUB_PASSWORD" | sudo chpasswd
+            echo "Playwright tests with $OPHUB_USERNAME"
+            mkdir ../playwright-results/$OPHUB_USERNAME
+            pytest --video=on --output=../playwright-results/$OPHUB_USERNAME
+
+            ls -la /home/user-notebooks
+            ls -la /home/user-notebooks/testuser
+            ls -la /home/user-notebooks/testuser2
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: 'playwright-results-${{ matrix.label }}'
+          path: playwright-results
+          retention-days: 7
+

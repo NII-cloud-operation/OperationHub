@@ -14,23 +14,48 @@ jobs:
         matrix:
           ep_weave: [false, true]
           nbsearch: [false, true]
+          jenkins: [false, true]
           include:
             - ep_weave: false
               nbsearch: false
+              jenkins: false
               compose_files: ''
               label: 'default'
             - ep_weave: true
               nbsearch: false
+              jenkins: false
               compose_files: '-f docker-compose.yml -f docker-compose.ep_weave.yml'
               label: 'ep_weave'
             - nbsearch: true
               ep_weave: false
+              jenkins: false
               compose_files: '-f docker-compose.yml -f docker-compose.nbsearch.yml'
               label: 'nbsearch'
             - ep_weave: true
               nbsearch: true
+              jenkins: false
               compose_files: '-f docker-compose.yml -f docker-compose.ep_weave.yml -f docker-compose.nbsearch.yml'
-              label: 'ep_weave_and_nbsearch'
+              label: 'ep_weave-and-nbsearch'
+            - ep_weave: false
+              nbsearch: false
+              jenkins: true
+              compose_files: '-f docker-compose.yml -f docker-compose.jenkins.yml'
+              label: 'jenkins'
+            - ep_weave: true
+              nbsearch: true
+              jenkins: true
+              compose_files: '-f docker-compose.yml -f docker-compose.ep_weave.yml -f docker-compose.nbsearch.yml -f docker-compose.jenkins.yml'
+              label: 'all-services'
+          exclude:
+            - ep_weave: false
+              nbsearch: false
+              jenkins: true
+            - ep_weave: true
+              nbsearch: false
+              jenkins: true
+            - ep_weave: false
+              nbsearch: true
+              jenkins: true
     runs-on: ubuntu-22.04
     name: Build and Test (${{ matrix.label }})
     steps:
@@ -152,7 +177,27 @@ jobs:
             done
             if ! curl -s -o /dev/null -w "%{http_code}" --insecure https://localhost/services/solr | grep -q "302"; then
               echo "solr did not start"
-              sudo docker compose ${{ matrix.compose_files }} logs nbsearch
+              sudo docker compose ${{ matrix.compose_files }} logs nbsearch-solr
+              exit 1
+            fi
+      - name: Wait for jenkins to start
+        if: matrix.jenkins
+        run: |
+            set -xe
+
+            echo "Waiting for jenkins to start"
+            max_retries=10
+            while [ $max_retries -gt 0 ]; do
+              if curl -s -o /dev/null -w "%{http_code}" --insecure https://localhost/services/jenkins | grep -q "301"; then
+                break
+              fi
+              curl -vvvv --insecure https://localhost/services/jenkins
+              max_retries=$((max_retries-1))
+              sleep 10
+            done
+            if ! curl -s -o /dev/null -w "%{http_code}" --insecure https://localhost/services/jenkins | grep -q "301"; then
+              echo "jenkins did not start"
+              sudo docker compose ${{ matrix.compose_files }} logs jenkins
               exit 1
             fi
       - name: Install python for playwright-tests
@@ -175,6 +220,7 @@ jobs:
             export OPHUB_IGNORE_HTTPS_ERRORS=1
             export OPHUB_SERVICE_EP_WEAVE=${{ matrix.ep_weave }}
             export OPHUB_SERVICE_NBSEARCH=${{ matrix.nbsearch }}
+            export OPHUB_SERVICE_JENKINS=${{ matrix.jenkins }}
             export OPHUB_USER_IS_ADMIN=1
 
             cd playwright-tests

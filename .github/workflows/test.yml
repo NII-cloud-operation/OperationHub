@@ -175,6 +175,7 @@ jobs:
             export OPHUB_IGNORE_HTTPS_ERRORS=1
             export OPHUB_SERVICE_EP_WEAVE=${{ matrix.ep_weave }}
             export OPHUB_SERVICE_NBSEARCH=${{ matrix.nbsearch }}
+            export OPHUB_USER_IS_ADMIN=1
 
             cd playwright-tests
             export OPHUB_URL=https://localhost
@@ -188,6 +189,8 @@ jobs:
             # generate test password
             export OPHUB_PASSWORD=$(openssl rand -base64 12)
             echo "$OPHUB_USERNAME:$OPHUB_PASSWORD" | sudo chpasswd
+            export OPHUB_USER_IS_ADMIN=0
+
             echo "Playwright tests with $OPHUB_USERNAME"
             mkdir ../playwright-results/$OPHUB_USERNAME
             pytest --video=on --output=../playwright-results/$OPHUB_USERNAME

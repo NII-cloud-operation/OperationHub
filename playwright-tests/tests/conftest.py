@@ -27,6 +27,10 @@ def ophub_password() -> str:
         raise ValueError('OPHUB_PASSWORD environment variable is not set')
     return password
 
+@pytest.fixture
+def ophub_user_is_admin() -> bool:
+    return os.environ.get('OPHUB_USER_IS_ADMIN', '0') == '1'
+
 @pytest.fixture(scope="session")
 def browser_context_args(browser_context_args) -> Dict:
     ignore_https_errors = os.environ.get('OPHUB_IGNORE_HTTPS_ERRORS', '0') == '1'

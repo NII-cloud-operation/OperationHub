@@ -11,7 +11,13 @@ def test_needs_login(page: Page, ophub_url: str):
     login_url = urljoin(ophub_url, 'hub/login?next=%2Fhub%2F')
     assert login_url == page.url
 
-def test_login_to_hub_home(page: Page, ophub_url: str, ophub_username: str, ophub_password: str):
+def test_login_to_hub_home(
+    page: Page,
+    ophub_url: str,
+    ophub_username: str,
+    ophub_password: str,
+    ophub_user_is_admin: bool,
+):
     hub_home_url = urljoin(ophub_url, 'hub/home')
     page.goto(hub_home_url)
 
@@ -22,3 +28,7 @@ def test_login_to_hub_home(page: Page, ophub_url: str, ophub_username: str, ophu
     page.click('#login_submit')
 
     expect(page.locator('#start')).to_be_enabled()
+
+    expect(page.locator('//*[@href="/hub/admin"]')).to_have_count(
+        1 if ophub_user_is_admin else 0
+    )

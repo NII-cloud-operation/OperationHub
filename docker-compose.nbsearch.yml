@@ -109,6 +109,7 @@ services:
       NBSEARCHDB_AUTO_UPDATE: ""
       NBSEARCHDB_OAUTH_CLIENT_ID: "${NBSEARCHDB_OAUTH_CLIENT_ID:-nbsearchdb_oauth_client_changeme}"
       NBSEARCHDB_OAUTH_CLIENT_SECRET: "${NBSEARCHDB_OAUTH_CLIENT_SECRET:-nbsearchdb_oauth_secret_changeme}"
+      SERVER_NAME: "${SERVER_NAME}"
     volumes:
       - './config/oidc/jupyterhub_config.py:/jupyterhub_config.d/oidc.py:ro'
       - './config/nbsearch/jupyterhub_config.py:/jupyterhub_config.d/solr.py:ro'

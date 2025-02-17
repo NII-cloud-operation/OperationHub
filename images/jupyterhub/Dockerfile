@@ -1,4 +1,4 @@
-FROM jupyterhub/jupyterhub:2.3 As builder
+FROM jupyterhub/jupyterhub:4 As builder
 
 # dev tools
 RUN apt-get update && \
@@ -16,12 +16,12 @@ WORKDIR /tmp
 
 # nblineage
 RUN python3 -m pip wheel --wheel-dir wheelhouse --constraint requirements \
-    git+https://github.com/NII-cloud-operation/Jupyter-LC_nblineage.git
+    jupyterlab \
+    https://github.com/NII-cloud-operation/Jupyter-LC_nblineage/releases/download/0.2.0.rc1/nblineage-0.2.0.rc1.tar.gz
 
 # Spawner
 RUN python3 -m pip wheel --wheel-dir wheelhouse --constraint requirements \
-    git+https://github.com/jupyterhub/dockerspawner.git \
-    requests-unixsocket
+    dockerspawner
 
 # Authenticator
 COPY authenticator /tmp/authenticator
@@ -33,7 +33,7 @@ RUN python3 -m pip wheel --wheel-dir wheelhouse --constraint requirements \
 RUN python3 -m pip wheel --wheel-dir wheelhouse --constraint requirements \
     git+https://github.com/NII-cloud-operation/jupyterhub-oidc-provider.git
 
-FROM jupyterhub/jupyterhub:2.3
+FROM jupyterhub/jupyterhub:4
 
 # acl
 RUN apt-get update && apt-get install -y acl && apt-get autoclean && apt-get clean && apt-get autoremove

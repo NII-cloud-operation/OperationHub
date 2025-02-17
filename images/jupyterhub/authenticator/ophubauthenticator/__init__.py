@@ -1,22 +1,39 @@
 import json
+import aiohttp
+from urllib.parse import urljoin
+
+from traitlets import Unicode
 
 from jupyterhub.auth import PAMAuthenticator
 from jupyterhub.utils import maybe_future
 
-import requests_unixsocket
-
 
 class OphubPAMAuthenticator(PAMAuthenticator):
 
-    def mount_nbdir(self, username):
-        session = requests_unixsocket.Session()
-        r = session.post('http+unix://%2Fvar%2Frun%2Fjupyterhub%2Fophubuser.sock/mount/{}'.format(username))
-        self.log.info('Mount user notebook dir: %s', json.dumps(r.json()))
+    ophubuser_socket_path = Unicode(
+        "/var/run/jupyterhub/ophubuser.sock",
+        config=True,
+        help="Path to the Unix socket for the user service"
+    )
+
+    ophubuser_base_url = Unicode(
+        "http://localhost/mount/",
+        config=True,
+        help="Base URL for the user service"
+    )
+
+    async def mount_nbdir(self, username):
+        url = urljoin(self.ophubuser_base_url, username)
+        connector = aiohttp.UnixConnector(path=self.ophubuser_socket_path)
+        async with aiohttp.ClientSession(connector=connector) as session:
+            async with session.post(url) as resp:
+                response = await resp.json(content_type=None)
+                self.log.info('Mount user notebook dir: %s', json.dumps(response))
 
     async def add_user(self, user):
         await maybe_future(super().add_user(user))
 
-        self.mount_nbdir(user.name)
+        await self.mount_nbdir(user.name)
 
     async def is_admin(self, handler, authentication):
         admin_status = await maybe_future(super().is_admin(handler, authentication))

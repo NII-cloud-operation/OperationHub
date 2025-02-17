@@ -31,7 +31,7 @@ jobs:
               nbsearch: true
               compose_files: '-f docker-compose.yml -f docker-compose.ep_weave.yml -f docker-compose.nbsearch.yml'
               label: 'ep_weave_and_nbsearch'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     name: Build and Test (${{ matrix.label }})
     steps:
       - uses: actions/checkout@v4

@@ -145,6 +145,42 @@ You should define the environment variables for ep_weave in the `.env` file to s
 
 You can see the ep_weave dashboard from the Services > ep_weave in the Control Panel of the JupyterHub.
 
+### Launching jenkins
+
+You can use [jenkins](https://www.jenkins.io/) for CI/CD together with JupyterHub.
+If you want to use jenkins, you can start it with JupyterHub by the following command.
+
+    $ sudo docker compose -f docker-compose.yml -f docker-compose.jenkins.yml build
+    $ sudo docker compose -f docker-compose.yml -f docker-compose.jenkins.yml up -d
+
+You should define the environment variables for jenkins in the `.env` file to secure the service.
+
+    JENKINS_OAUTH_CLIENT_ID=(random string)
+    JENKINS_OAUTH_CLIENT_SECRET=(random string)
+
+You can see the jenkins dashboard from the Services > jenkins in the Control Panel of the JupyterHub.
+By default, anonymous users can access jenkins, so you should set the security settings on the Manage Jenkins > Security page.
+
+![Security Settings of Jenkins](docs/jenkins-security-settings.png)
+
+You should set the following items.
+
+- Security Realm - Login with OpenID Connect
+- Client id - (random string) of JENKINS_OAUTH_CLIENT_ID
+- Client secret - (random string) of JENKINS_OAUTH_CLIENT_SECRET
+- Configuration mode - `Discovery via well-known endpoint`
+  - Well-known configuration endpoint - `http://jupyterhub:8000/services/oidcp/internal/.well-known/openid-configuration`
+  - Advanced > Override scopes - `openid email`
+- Advanced configuration > User fields
+  - User name field name - `sub`
+  - Username case sensitivity - `Case sensitive`
+  - Full name field name - `name`
+  - Email field name - `email`
+- Authorization - Logged-in users can do anything
+- Allow anonymous read access - Unchecked
+
+After you set the security settings, you can log in to jenkins with the account of the JupyterHub.
+
 # Create new user
 
 For creating a new user, use `useradd` command on the command line of the server.

@@ -48,6 +48,10 @@ def ophub_has_nbsearch() -> bool:
     return os.environ.get('OPHUB_SERVICE_NBSEARCH', '') in ('1', 'yes', 'true')
 
 @pytest.fixture
+def ophub_has_jenkins() -> bool:
+    return os.environ.get('OPHUB_SERVICE_JENKINS', '') in ('1', 'yes', 'true')
+
+@pytest.fixture
 def ophub_login_to_hub_home(ophub_url, ophub_username, ophub_password) -> Callable[[Page], None]:
     def login(page: Page):
         hub_home_url = urljoin(ophub_url, 'hub/home')
@@ -63,10 +67,12 @@ def ophub_login_to_hub_home(ophub_url, ophub_username, ophub_password) -> Callab
     return login
 
 @pytest.fixture
-def ophub_services(ophub_has_ep_weave, ophub_has_nbsearch) -> List[str]:
+def ophub_services(ophub_has_ep_weave, ophub_has_nbsearch, ophub_has_jenkins) -> List[str]:
     services = []
     if ophub_has_ep_weave:
         services.append('ep_weave')
     if ophub_has_nbsearch:
         services.append('solr')
+    if ophub_has_jenkins:
+        services.append('jenkins')
     return services

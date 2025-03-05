@@ -145,7 +145,7 @@ You should define the environment variables for ep_weave in the `.env` file to s
 
 You can see the ep_weave dashboard from the Services > ep_weave in the Control Panel of the JupyterHub.
 
-### Launching jenkins
+### Launching Jenkins
 
 You can use [jenkins](https://www.jenkins.io/) for CI/CD together with JupyterHub.
 If you want to use jenkins, you can start it with JupyterHub by the following command.
@@ -183,6 +183,22 @@ The settings below should be change after you have confirmed that the login work
 - Allow anonymous read access - Unchecked
 
 After you set the security settings, you can log in to jenkins with the account of the JupyterHub.
+
+You can perform the docker command in the jenkins container to execute notebooks.
+The shell script below is an example of executing a notebook using papermill in the jenkins container.
+
+```
+# execute notebook using papermill
+docker run --rm \
+    -v /home/john/notebooks/test.ipynb:/home/jovyan/test.ipynb:ro \
+    your-single-user-image \
+    papermill /home/jovyan/test.ipynb /home/jovyan/output.ipynb
+```
+
+The `/var/jenkins_home/jobs/` directory in the jenkins container is mapped to the `~/notebooks/share/jenkins-jobs/` directory in the user's container.
+All users can read and write(if they have the permission) to the `~/notebooks/share/jenkins-jobs/` directory.
+
+In addition, only administrators of the JupyterHub can access the Jenkins in JupyterHub. To access Jenkins, users must have the `access:services!service=oidcp-jenkins` permission.
 
 # Create new user
 

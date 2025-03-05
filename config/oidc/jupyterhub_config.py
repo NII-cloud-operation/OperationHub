@@ -33,6 +33,7 @@ if enable_nbsearch is not None and bool(strtobool(enable_nbsearch)):
 if len(oidc_services) > 0:
     configure_jupyterhub_oidcp(
         c,
+        service_name="oidcp",
         issuer="http://jupyterhub:8000/services/oidcp/internal/",
         base_url=f"https://{server_name}/",
         internal_base_url="http://jupyterhub:8000",

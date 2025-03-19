@@ -41,8 +41,8 @@ RUN apt-get update && apt-get install -y acl && apt-get autoclean && apt-get cle
 RUN python3 -m pip install --no-cache --upgrade setuptools pip
 
 # install the wheels from first stage
-COPY --from=builder /tmp/wheelhouse /tmp/wheelhouse
-RUN python3 -m pip install --no-cache /tmp/wheelhouse/*
+RUN --mount=type=cache,from=builder,source=/tmp/wheelhouse,target=/tmp/wheelhouse \
+    python3 -m pip install --no-cache /tmp/wheelhouse/*
 
 ADD cull_idle_servers.py /usr/local/bin/cull_idle_servers.py
 ADD add_user.py /usr/local/bin/add_user.py

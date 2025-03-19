@@ -38,6 +38,7 @@ services:
       - --client-id=${NBSEARCHDB_OAUTH_CLIENT_ID:-nbsearchdb_oauth_client_changeme}
       - --client-secret=${NBSEARCHDB_OAUTH_CLIENT_SECRET:-nbsearchdb_oauth_secret_changeme}
       - --cookie-secret=${NBSEARCHDB_COOKIE_SECRET:-nbsearchdb_cookiesecret_changeme}
+      - --cookie-name=_oauth2_proxy_nbsearchdb
       - --redirect-url=https://${SERVER_NAME}/services/solr/oauth2/callback
       - --oidc-issuer-url=http://jupyterhub:8000/services/oidcp/internal/
       - --email-domain=admin.jupyterhub

@@ -16,49 +16,6 @@ jobs:
           nbsearch: [false, true]
           jenkins: [false, true]
           ubuntu_version: ['22.04', '24.04']
-          include:
-            - ep_weave: false
-              nbsearch: false
-              jenkins: false
-              ubuntu_version: '22.04'
-              compose_files: ''
-              label: 'default-22.04'
-            - ep_weave: false
-              nbsearch: false
-              jenkins: false
-              ubuntu_version: '24.04'
-              compose_files: ''
-              label: 'default-24.04'
-            - ep_weave: true
-              nbsearch: false
-              jenkins: false
-              ubuntu_version: '22.04'
-              compose_files: '-f docker-compose.yml -f docker-compose.ep_weave.yml'
-              label: 'ep_weave'
-            - nbsearch: true
-              ep_weave: false
-              jenkins: false
-              ubuntu_version: '22.04'
-              compose_files: '-f docker-compose.yml -f docker-compose.nbsearch.yml'
-              label: 'nbsearch'
-            - ep_weave: true
-              nbsearch: true
-              jenkins: false
-              ubuntu_version: '22.04'
-              compose_files: '-f docker-compose.yml -f docker-compose.ep_weave.yml -f docker-compose.nbsearch.yml'
-              label: 'ep_weave-and-nbsearch'
-            - ep_weave: false
-              nbsearch: false
-              jenkins: true
-              ubuntu_version: '22.04'
-              compose_files: '-f docker-compose.yml -f docker-compose.jenkins.yml'
-              label: 'jenkins'
-            - ep_weave: true
-              nbsearch: true
-              jenkins: true
-              ubuntu_version: '22.04'
-              compose_files: '-f docker-compose.yml -f docker-compose.ep_weave.yml -f docker-compose.nbsearch.yml -f docker-compose.jenkins.yml'
-              label: 'all-services'
           exclude:
             - ep_weave: false
               nbsearch: false
@@ -72,27 +29,47 @@ jobs:
             - ep_weave: true
               nbsearch: false
               jenkins: false
-              ubuntu_version: '24.04'
-            - nbsearch: true
-              ep_weave: false
-              jenkins: false
-              ubuntu_version: '24.04'
-            - ep_weave: true
-              nbsearch: true
-              jenkins: false
-              ubuntu_version: '24.04'
-            - ep_weave: false
-              nbsearch: false
-              jenkins: true
-              ubuntu_version: '24.04'
-            - ep_weave: true
-              nbsearch: true
-              jenkins: true
-              ubuntu_version: '24.04'
+
     runs-on: ubuntu-${{ matrix.ubuntu_version }}
-    name: Build and Test (${{ matrix.label }})
+    name: Build and Test ${{ matrix.nbsearch == true && '+nbsearch ' || '' }}${{ matrix.ep_weave == true && '+ep_weave ' || '' }}${{ matrix.jenkins == true && '+jenkins ' || '' }}on ubuntu-${{ matrix.ubuntu_version }}
+
     steps:
       - uses: actions/checkout@v4
+      - name: Set label and compose_files
+        id: setup
+        run: |
+            set -xe
+
+            label="default"
+            compose_files="-f docker-compose.yml"
+
+            if ${{ matrix.ep_weave }}; then
+              compose_files="$compose_files -f docker-compose.ep_weave.yml"
+              label="ep_weave"
+            fi
+            if ${{ matrix.nbsearch }}; then
+              compose_files="$compose_files -f docker-compose.nbsearch.yml"
+              if [ "$label" = "ep_weave" ]; then
+                label="ep_weave-and-nbsearch"
+              else
+                label="nbsearch"
+              fi
+            fi
+            if ${{ matrix.jenkins }}; then
+              compose_files="$compose_files -f docker-compose.jenkins.yml"
+              if [ "$label" = "ep_weave-and-nbsearch" ]; then
+                label="all-services"
+              elif [ "$label" != "default" ]; then
+                label="${label}-and-jenkins"
+              else
+                label="jenkins"
+              fi
+            fi
+            label="${label}-${{ matrix.ubuntu_version }}"
+
+            echo "label=$label" >> $GITHUB_OUTPUT
+            echo "compose_files=$compose_files" >> $GITHUB_OUTPUT
+
       - name: Install packages
         run: |
             set -xe
@@ -133,18 +110,19 @@ jobs:
             set -xe
 
             cat .env
-            sudo docker compose ${{ matrix.compose_files }} build
-            sudo docker compose ${{ matrix.compose_files }} up -d
+            sudo docker compose ${{ steps.setup.outputs.compose_files }} build
+            sudo docker compose ${{ steps.setup.outputs.compose_files }} up -d
+
       - name: Wait for JupyterHub to start
         run: |
             set -xe
 
-            sudo docker compose ${{ matrix.compose_files }} ps
+            sudo docker compose ${{ steps.setup.outputs.compose_files }} ps
             # waiting for jupyterhub to start
             echo "Waiting for JupyterHub to start"
             max_retries=10
             while [ $max_retries -gt 0 ]; do
-              if sudo docker compose ${{ matrix.compose_files }} logs jupyterhub | grep -q "JupyterHub is now running"; then
+              if sudo docker compose ${{ steps.setup.outputs.compose_files }} logs jupyterhub | grep -q "JupyterHub is now running"; then
                 break
               fi
               max_retries=$((max_retries-1))
@@ -152,11 +130,12 @@ jobs:
             done
             if ! sudo docker compose logs jupyterhub | grep -q "JupyterHub is now running"; then
               echo "JupyterHub did not start"
-              sudo docker compose ${{ matrix.compose_files }} logs jupyterhub
+              sudo docker compose ${{ steps.setup.outputs.compose_files }} logs jupyterhub
               exit 1
             fi
-            sudo docker compose ${{ matrix.compose_files }} ps
+            sudo docker compose ${{ steps.setup.outputs.compose_files }} ps
             # waiting for proxy to start
+
             echo "Waiting for Proxy to start"
             max_retries=10
             while [ $max_retries -gt 0 ]; do
@@ -169,10 +148,10 @@ jobs:
             done
             if ! curl -s -o /dev/null -w "%{http_code}" --insecure https://localhost/hub/login | grep -q "200"; then
               echo "Proxy did not start"
-              sudo docker compose ${{ matrix.compose_files }} logs proxy
+              sudo docker compose ${{ steps.setup.outputs.compose_files }} logs proxy
               exit 1
             fi
-            sudo docker compose ${{ matrix.compose_files }} ps
+            sudo docker compose ${{ steps.setup.outputs.compose_files }} ps
       - name: Wait for ep_weave to start
         if: matrix.ep_weave
         run: |
@@ -190,7 +169,7 @@ jobs:
             done
             if ! curl -s -o /dev/null -w "%{http_code}" --insecure https://localhost/services/ep_weave | grep -q "301"; then
               echo "ep_weave did not start"
-              sudo docker compose ${{ matrix.compose_files }} logs ep_weave
+              sudo docker compose ${{ steps.setup.outputs.compose_files }} logs ep_weave
               exit 1
             fi
       - name: Wait for solr to start
@@ -210,7 +189,7 @@ jobs:
             done
             if ! curl -s -o /dev/null -w "%{http_code}" --insecure https://localhost/services/solr | grep -q "302"; then
               echo "solr did not start"
-              sudo docker compose ${{ matrix.compose_files }} logs nbsearch-solr
+              sudo docker compose ${{ steps.setup.outputs.compose_files }} logs nbsearch-solr
               exit 1
             fi
       - name: Wait for jenkins to start
@@ -230,7 +209,7 @@ jobs:
             done
             if ! curl -s -o /dev/null -w "%{http_code}" --insecure https://localhost/services/jenkins | grep -q "301"; then
               echo "jenkins did not start"
-              sudo docker compose ${{ matrix.compose_files }} logs jenkins
+              sudo docker compose ${{ steps.setup.outputs.compose_files }} logs jenkins
               exit 1
             fi
       - name: Install python for playwright-tests
@@ -281,7 +260,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: 'playwright-results-${{ matrix.label }}'
+          name: 'playwright-results-${{ steps.setup.outputs.label }}'
           path: playwright-results
           retention-days: 7
 

@@ -26,9 +26,6 @@ jobs:
             - ep_weave: false
               nbsearch: true
               jenkins: true
-            - ep_weave: true
-              nbsearch: false
-              jenkins: false
 
     runs-on: ubuntu-${{ matrix.ubuntu_version }}
     name: Build and Test ${{ matrix.nbsearch == true && '+nbsearch ' || '' }}${{ matrix.ep_weave == true && '+ep_weave ' || '' }}${{ matrix.jenkins == true && '+jenkins ' || '' }}on ubuntu-${{ matrix.ubuntu_version }}

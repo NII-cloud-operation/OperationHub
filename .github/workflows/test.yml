@@ -15,35 +15,48 @@ jobs:
           ep_weave: [false, true]
           nbsearch: [false, true]
           jenkins: [false, true]
+          ubuntu_version: ['22.04', '24.04']
           include:
             - ep_weave: false
               nbsearch: false
               jenkins: false
+              ubuntu_version: '22.04'
               compose_files: ''
-              label: 'default'
+              label: 'default-22.04'
+            - ep_weave: false
+              nbsearch: false
+              jenkins: false
+              ubuntu_version: '24.04'
+              compose_files: ''
+              label: 'default-24.04'
             - ep_weave: true
               nbsearch: false
               jenkins: false
+              ubuntu_version: '22.04'
               compose_files: '-f docker-compose.yml -f docker-compose.ep_weave.yml'
               label: 'ep_weave'
             - nbsearch: true
               ep_weave: false
               jenkins: false
+              ubuntu_version: '22.04'
               compose_files: '-f docker-compose.yml -f docker-compose.nbsearch.yml'
               label: 'nbsearch'
             - ep_weave: true
               nbsearch: true
               jenkins: false
+              ubuntu_version: '22.04'
               compose_files: '-f docker-compose.yml -f docker-compose.ep_weave.yml -f docker-compose.nbsearch.yml'
               label: 'ep_weave-and-nbsearch'
             - ep_weave: false
               nbsearch: false
               jenkins: true
+              ubuntu_version: '22.04'
               compose_files: '-f docker-compose.yml -f docker-compose.jenkins.yml'
               label: 'jenkins'
             - ep_weave: true
               nbsearch: true
               jenkins: true
+              ubuntu_version: '22.04'
               compose_files: '-f docker-compose.yml -f docker-compose.ep_weave.yml -f docker-compose.nbsearch.yml -f docker-compose.jenkins.yml'
               label: 'all-services'
           exclude:
@@ -56,7 +69,27 @@ jobs:
             - ep_weave: false
               nbsearch: true
               jenkins: true
-    runs-on: ubuntu-22.04
+            - ep_weave: true
+              nbsearch: false
+              jenkins: false
+              ubuntu_version: '24.04'
+            - nbsearch: true
+              ep_weave: false
+              jenkins: false
+              ubuntu_version: '24.04'
+            - ep_weave: true
+              nbsearch: true
+              jenkins: false
+              ubuntu_version: '24.04'
+            - ep_weave: false
+              nbsearch: false
+              jenkins: true
+              ubuntu_version: '24.04'
+            - ep_weave: true
+              nbsearch: true
+              jenkins: true
+              ubuntu_version: '24.04'
+    runs-on: ubuntu-${{ matrix.ubuntu_version }}
     name: Build and Test (${{ matrix.label }})
     steps:
       - uses: actions/checkout@v4

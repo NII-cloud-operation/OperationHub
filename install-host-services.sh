@@ -13,10 +13,10 @@ if printf '%s\n' $(echo ${ID_LIKE[@]}) | grep -qx "rhel"; then
 elif [ $ID == "ubuntu" ]; then
     apt-get update
     apt-get install -y python3 python3-dev python3-pip inotify-tools
+    apt-get install -y python3-tornado
 else
     exit 1
 fi
-pip3 install tornado
 
 # install service
 install -m 644 host-service/ophubuser.py /usr/local/bin

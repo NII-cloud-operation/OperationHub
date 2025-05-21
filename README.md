@@ -19,7 +19,7 @@ It serves the following features:
 ## Prerequisites
 
 - A server you have root access
-    - Support CentOS 7, CentOS Stream 9, Rocky Linux 8 and 9, Ubuntu 22.04
+    - Support CentOS 7, CentOS Stream 9, Rocky Linux 8 and 9, Ubuntu 22.04 and 24.04
 - Python 3.6 or later
 - Docker Engine and Docker Compose
 - TLS certificate and private key for HTTPS communication

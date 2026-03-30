@@ -27,6 +27,20 @@ HOST_IFACE = os.environ.get('MYNERVA_HOST_IFACE', '')
 
 c.JupyterHub.allow_named_servers = True  # noqa: F821
 
+
+# Grant single-user servers permission to start/stop their own Named Servers.
+def _mynerva_token_scopes(spawner):
+    username = spawner.user.name
+    return [
+        f'servers!user={username}',
+        f'read:servers!user={username}',
+        f'delete:servers!user={username}',
+    ]
+
+
+c.Spawner.server_token_scopes = _mynerva_token_scopes  # noqa: F821
+
+
 # Track container IPs for iptables cleanup on stop
 _agent_ips = {}
 

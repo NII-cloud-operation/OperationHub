@@ -152,16 +152,24 @@ def _get_container_ip(object_id):
     return container.attrs['NetworkSettings']['Networks'][AGENT_NETWORK]['IPAddress']
 
 
-# --- Extend the configured spawner class with iptables in start() ---
+# --- Extend DockerSpawner with iptables in start() ---
 #
-# c.JupyterHub.spawner_class is already set to CustomDockerSpawner
-# by jupyterhub_config.py. We read it back from the config object
-# (the class name is not in load_subconfig's namespace).
+# CustomDockerSpawner (defined in jupyterhub_config.py) is not accessible
+# from load_subconfig scope, and c.JupyterHub.spawner_class returns a
+# LazyConfigValue. We inherit from DockerSpawner directly and reproduce
+# the get_args customisation from CustomDockerSpawner.
 
-_BaseSpawner = c.JupyterHub.spawner_class  # noqa: F821
+from dockerspawner import DockerSpawner
 
 
-class MynervaDockerSpawner(_BaseSpawner):
+class MynervaDockerSpawner(DockerSpawner):
+    def get_args(self):
+        args = super().get_args()
+        # Same as CustomDockerSpawner in jupyterhub_config.py
+        args.append(self.format_string(
+            '--ServerApp.root_dir=/home/{username}/notebooks'
+        ))
+        return args
     async def start(self):
         result = await super().start()
 

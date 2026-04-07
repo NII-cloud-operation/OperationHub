@@ -158,6 +158,10 @@ for key in os.environ.keys():
     if key.startswith('NBWHISPER_') and os.environ[key]:
         c.Spawner.environment[key] = os.environ[key]
 
+for key in os.environ.keys():
+    if key.startswith('MYNERVA_') and os.environ[key]:
+        c.Spawner.environment[key] = os.environ[key]
+
 def mount_user_nbdir(spawner):
     spawner.authenticator.mount_nbdir(spawner.user.name)
 

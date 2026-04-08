@@ -347,6 +347,16 @@ The configurations for (legacy) [NBWhisper](https://github.com/NII-cloud-operati
 
 See https://github.com/NII-cloud-operation/Jupyter-LC_docker#using-nbwhisper about details.
 
+**MYNERVA_SECRET_KEY**,
+**MYNERVA_OPENAI_API_KEY**, **MYNERVA_OPENAI_BASE_URL**,
+**MYNERVA_ANTHROPIC_API_KEY**,
+**MYNERVA_DEFAULT_PROVIDER**, **MYNERVA_DEFAULT_MODEL**,
+**MYNERVA_DEFAULTS_ONLY**
+
+The configurations for [jupyter-mynerva](https://github.com/NII-cloud-operation/jupyter-mynerva).
+
+See https://github.com/NII-cloud-operation/Jupyter-LC_docker#using-jupyter-mynerva about details.
+
 # Collecting container logs
 
 OperationHub outputs logs such as Nginx access logs and JupyterHub logs to docker logs.

@@ -1,0 +1,33 @@
+services:
+    proxy:
+        ports:
+            - "80:8080"
+        environment:
+            SERVER_NAME: "${SERVER_NAME:?Set SERVER_NAME to the public DNS name for OperationHub}"
+            ACME_CONTACT: "${ACME_CONTACT:?Set ACME_CONTACT, for example mailto:admin@example.ac.jp}"
+            ACME_DIRECTORY: "${ACME_DIRECTORY:?Set ACME_DIRECTORY to the ACME directory URL}"
+            ACME_STATE_NAME: "${ACME_STATE_NAME:?Set ACME_STATE_NAME to a stable per-account state directory name}"
+            ACME_ISSUER_NAME: "letsencrypt"
+            ACME_CERT_OPTIONS: ""
+            ACME_EXTERNAL_ACCOUNT_KEY_DIRECTIVE: ""
+            # For UPKI ACME, replace the ACME_ISSUER_NAME, ACME_CERT_OPTIONS,
+            # and ACME_EXTERNAL_ACCOUNT_KEY_DIRECTIVE lines above with the
+            # following values:
+            # ACME_ISSUER_NAME: "upki"
+            # ACME_CERT_OPTIONS: "key=rsa:2048"
+            # ACME_EXTERNAL_ACCOUNT_KEY_DIRECTIVE: "external_account_key ${UPKI_ACME_EAB_KID} /run/secrets/upki_eab_hmac_key;"
+        volumes: !override
+            - /etc/localtime:/etc/localtime:ro
+            - ./nginx/nginx-acme.conf.template:/etc/nginx/nginx.conf.template:ro
+            - /var/lib/jupyterhub/acme:/var/cache/nginx/acme
+            # For UPKI ACME, also mount the EAB HMAC key file:
+            # - ${UPKI_ACME_EAB_HMAC_KEY_FILE:?Set UPKI_ACME_EAB_HMAC_KEY_FILE to the base64url EAB HMAC key file issued by UPKI}:/run/secrets/upki_eab_hmac_key:ro
+        command: >
+          /bin/bash -c
+          "mkdir -p /var/cache/nginx/acme/${ACME_STATE_NAME:?Set ACME_STATE_NAME to a stable per-account state directory name} &&
+          chown -R nginx:nginx /var/cache/nginx/acme &&
+          envsubst '$$SERVER_NAME $$ACME_CONTACT $$ACME_DIRECTORY $$ACME_ISSUER_NAME $$ACME_STATE_NAME $$ACME_CERT_OPTIONS $$ACME_EXTERNAL_ACCOUNT_KEY_DIRECTIVE'
+          < /etc/nginx/nginx.conf.template
+          > /etc/nginx/nginx.conf &&
+          nginx -t &&
+          exec nginx -g 'daemon off;'"

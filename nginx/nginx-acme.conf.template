@@ -1,0 +1,79 @@
+load_module modules/ngx_http_acme_module.so;
+
+user  nginx;
+worker_processes  auto;
+
+error_log  /var/log/nginx/error.log notice;
+pid        /run/nginx.pid;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+
+    sendfile        on;
+    keepalive_timeout  65;
+    client_max_body_size 50M;
+
+    resolver 127.0.0.11 valid=30s ipv6=off;
+
+    include /etc/nginx/conf.d/*.conf;
+
+    acme_issuer ${ACME_ISSUER_NAME} {
+        uri         ${ACME_DIRECTORY};
+        contact     ${ACME_CONTACT};
+        state_path  /var/cache/nginx/acme/${ACME_STATE_NAME};
+        ${ACME_EXTERNAL_ACCOUNT_KEY_DIRECTIVE}
+        accept_terms_of_service;
+    }
+
+    acme_shared_zone zone=ophub_acme:1M;
+
+    server {
+        listen 8080;
+        server_name ${SERVER_NAME};
+
+        location / {
+            return 404;
+        }
+    }
+
+    server {
+        listen 8443 ssl;
+        server_name ${SERVER_NAME};
+
+        acme_certificate ${ACME_ISSUER_NAME} ${ACME_CERT_OPTIONS};
+
+        ssl_certificate      $acme_certificate;
+        ssl_certificate_key  $acme_certificate_key;
+        ssl_certificate_cache max=2;
+
+        location / {
+            proxy_pass http://jupyterhub:8000;
+            proxy_redirect default;
+
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+
+            proxy_set_header Host $http_host;
+            proxy_set_header Origin $http_origin;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Scheme $scheme;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Forwarded-Host $http_host;
+            proxy_set_header X-Forwarded-Server $host;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header Referer $http_referer;
+        }
+    }
+}

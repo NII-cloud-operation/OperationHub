@@ -80,6 +80,57 @@ Put TLS certificate and key files to the following path.
 
 If intermediate certificate file is requires, concatenate intermediate certificate and server certificate file.
 
+### Using nginx ACME module
+
+As an alternative to putting certificate files under `./cert`, you can use the
+nginx ACME module with `docker-compose.acme.yml`.
+
+Set the following variables in `.env`. Start with the Let's Encrypt staging
+directory.
+
+    SERVER_NAME=ophub.example.com
+    ACME_CONTACT=mailto:admin@ophub.example.com
+    ACME_DIRECTORY=https://acme-staging-v02.api.letsencrypt.org/directory
+    ACME_STATE_NAME=letsencrypt-staging
+
+After confirming that issuance works, switch to the production directory and
+use a separate state name.
+
+    ACME_DIRECTORY=https://acme-v02.api.letsencrypt.org/directory
+    ACME_STATE_NAME=letsencrypt-prod
+
+Start OperationHub with the ACME override.
+
+    $ sudo docker compose -f docker-compose.yml -f docker-compose.acme.yml build
+    $ sudo docker compose -f docker-compose.yml -f docker-compose.acme.yml up -d
+
+The ACME override publishes port 80 for HTTP-01 challenges in addition to the
+HTTPS port. `SERVER_NAME` must be a DNS name reachable from the ACME CA and
+must not include a port number.
+
+ACME account state is stored in `/var/lib/jupyterhub/acme`. It contains the
+ACME account key, certificates, and certificate private keys. Do not remove this
+directory unless you intend to discard the ACME account state.
+
+#### UPKI ACME
+
+UPKI ACME is supported by editing the commented UPKI lines in
+`docker-compose.acme.yml`. UPKI requires External Account Binding (EAB), so keep
+the EAB HMAC key in a root-readable file and mount it as shown in the compose
+file comments.
+
+Set the following variables in `.env`.
+
+    SERVER_NAME=ophub.example.ac.jp
+    ACME_CONTACT=mailto:admin@example.ac.jp
+    ACME_DIRECTORY=https://secomtrust-acme.com/acme/
+    ACME_STATE_NAME=upki-ophub-example-ac-jp
+    UPKI_ACME_EAB_KID=(KeyID issued by UPKI)
+    UPKI_ACME_EAB_HMAC_KEY_FILE=/var/lib/jupyterhub/secrets/upki-eab-hmac-key
+
+The EAB HMAC key file must contain the base64url HMAC key issued by UPKI. Back
+up `/var/lib/jupyterhub/acme` and avoid deleting it.
+
 ## Step 6: Setting JupyterHub administrator
 
 Before you start OperationHub, make an administrator user.

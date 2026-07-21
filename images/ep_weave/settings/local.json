@@ -660,6 +660,9 @@
     "client_secret": "${EP_WEAVE_OAUTH_CLIENT_SECRET}",
     "base_url": "${EP_WEAVE_BASE_URL}"
   },
+  "ep_webrtc": {
+    "enabled": false
+  },
   "ep_weave": {
     "basePath": "/services/ep_weave"
   }

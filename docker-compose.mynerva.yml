@@ -1,0 +1,16 @@
+services:
+    jupyterhub:
+        environment:
+            MYNERVA_AGENT_NETWORK: "mynerva_agent"
+        networks:
+            - mynerva_agent
+        volumes:
+            - './jupyterhub_config.d/mynerva.py:/jupyterhub_config.d/mynerva.py:ro'
+
+networks:
+    mynerva_agent:
+        driver: bridge
+        name: mynerva_agent
+        ipam:
+            config:
+                - subnet: ${MYNERVA_AGENT_SUBNET:-172.20.0.0/24}
